@@ -1,0 +1,358 @@
+import '../../features/recipes/domain/entities/measure_unit.dart';
+import '../../features/recipes/domain/entities/recipe.dart';
+import '../../features/social/domain/social_entities.dart';
+
+/// Realistic fake data so every flow can be tested without a backend.
+abstract final class MockData {
+  static String _img(String id) => 'https://images.unsplash.com/$id?w=900&q=80&auto=format&fit=crop';
+
+  static const currentUserId = 'u1';
+
+  static final users = <AppUser>[
+    const AppUser(id: 'u1', name: 'Paul Suárez', handle: '@paul', bio: 'Cocinero de fin de semana. Fan del ceviche.'),
+    const AppUser(id: 'u2', name: 'Carlos Mendoza', handle: '@carlosm', bio: 'Chef de cocina marina.'),
+    const AppUser(id: 'u3', name: 'María Quispe', handle: '@mariaq', bio: 'Repostera y viajera.'),
+    const AppUser(id: 'u4', name: 'Lucía Ramos', handle: '@luciar', bio: 'Siempre lista para probar.'),
+    const AppUser(id: 'u5', name: 'Diego Torres', handle: '@diegot', bio: 'Parrillero oficial.'),
+  ];
+
+  static const categories = <RecipeCategory>[
+    RecipeCategory(id: 'c1', name: 'Entradas', emoji: '🥟'),
+    RecipeCategory(id: 'c2', name: 'Sopas', emoji: '🍲'),
+    RecipeCategory(id: 'c3', name: 'Platos principales', emoji: '🍽️'),
+    RecipeCategory(id: 'c4', name: 'Postres', emoji: '🍰'),
+    RecipeCategory(id: 'c5', name: 'Bebidas', emoji: '🥤'),
+    RecipeCategory(id: 'c6', name: 'Ensaladas', emoji: '🥗'),
+    RecipeCategory(id: 'c7', name: 'Desayunos', emoji: '🥞'),
+    RecipeCategory(id: 'c8', name: 'Acompañamientos', emoji: '🌽'),
+    RecipeCategory(id: 'c9', name: 'Snacks', emoji: '🍿'),
+  ];
+
+  static const ingredients = <Ingredient>[
+    Ingredient(id: 'i1', name: 'Filete de tilapia', category: 'Pescados', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i2', name: 'Limón', category: 'Frutas', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i3', name: 'Cebolla roja', category: 'Verduras', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i4', name: 'Ají limo', category: 'Verduras', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i5', name: 'Culantro', category: 'Hierbas', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i6', name: 'Sal', category: 'Condimentos', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i7', name: 'Camote', category: 'Verduras', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i8', name: 'Choclo', category: 'Verduras', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i9', name: 'Kion (jengibre)', category: 'Verduras', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i10', name: 'Rocoto', category: 'Verduras', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i11', name: 'Apio', category: 'Verduras', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i12', name: 'Cancha serrana', category: 'Granos', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i13', name: 'Quinua', category: 'Granos', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i14', name: 'Tomate cherry', category: 'Verduras', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i15', name: 'Aceite de oliva', category: 'Aceites', defaultUnit: MeasureUnit.tablespoon),
+    Ingredient(id: 'i16', name: 'Harina', category: 'Harinas', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i17', name: 'Huevo', category: 'Lácteos y huevos', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i18', name: 'Leche', category: 'Lácteos y huevos', defaultUnit: MeasureUnit.milliliter),
+    Ingredient(id: 'i19', name: 'Chocolate bitter', category: 'Dulces', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i20', name: 'Salmón', category: 'Pescados', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i21', name: 'Lechuga', category: 'Verduras', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i22', name: 'Miel', category: 'Dulces', defaultUnit: MeasureUnit.tablespoon),
+    Ingredient(id: 'i23', name: 'Naranja', category: 'Frutas', defaultUnit: MeasureUnit.unit),
+    Ingredient(id: 'i24', name: 'Queso mozzarella', category: 'Lácteos y huevos', defaultUnit: MeasureUnit.gram),
+    Ingredient(id: 'i25', name: 'Helado de vainilla', category: 'Dulces', defaultUnit: MeasureUnit.milliliter),
+  ];
+
+  // Purchase references (what you pay at the market).
+  static const _tilapia = PurchaseInfo(price: 12, quantity: 1, unit: MeasureUnit.kilogram);
+  static const _limon = PurchaseInfo(price: 5, quantity: 50, unit: MeasureUnit.unit);
+  static const _cebolla = PurchaseInfo(price: 1.8, quantity: 1, unit: MeasureUnit.kilogram);
+  static const _aji = PurchaseInfo(price: 1.5, quantity: 10, unit: MeasureUnit.unit);
+  static const _culantro = PurchaseInfo(price: 0.8, quantity: 100, unit: MeasureUnit.gram);
+  static const _sal = PurchaseInfo(price: 0.6, quantity: 1, unit: MeasureUnit.kilogram);
+  static const _camote = PurchaseInfo(price: 1.5, quantity: 1, unit: MeasureUnit.kilogram);
+  static const _choclo = PurchaseInfo(price: 0.8, quantity: 1, unit: MeasureUnit.unit);
+  static const _kion = PurchaseInfo(price: 3, quantity: 1, unit: MeasureUnit.kilogram);
+  static const _rocoto = PurchaseInfo(price: 2, quantity: 4, unit: MeasureUnit.unit);
+  static const _apio = PurchaseInfo(price: 1.2, quantity: 500, unit: MeasureUnit.gram);
+  static const _cancha = PurchaseInfo(price: 2.5, quantity: 500, unit: MeasureUnit.gram);
+
+  static final recipes = <Recipe>[
+    Recipe(
+      id: 'r1',
+      name: 'Ceviche peruano de tilapia',
+      description:
+          'Pescado fresco curado en limón, con cebolla roja, ají limo y culantro. Servido con camote y choclo, como en las cebicherías de Lima.',
+      imageUrl: _img('photo-1535399831218-d5bd36d1a6b3'),
+      categoryId: 'c3',
+      authorId: 'u1',
+      createdAt: DateTime(2026, 9, 2),
+      mainVersionId: 'v2',
+    ),
+    Recipe(
+      id: 'r2',
+      name: 'Ensalada andina de quinua',
+      description: 'Quinua graneada con tomates cherry, hierbas y un aliño cítrico.',
+      imageUrl: _img('photo-1547592180-85f173990554'),
+      categoryId: 'c6',
+      authorId: 'u3',
+      createdAt: DateTime(2026, 10, 1),
+      mainVersionId: 'v4',
+    ),
+    Recipe(
+      id: 'r3',
+      name: 'Bowl de salmón y verduras',
+      description: 'Salmón dorado sobre verduras frescas, huevo y quinua.',
+      imageUrl: _img('photo-1546069901-ba9599a7e63c'),
+      categoryId: 'c3',
+      authorId: 'u2',
+      createdAt: DateTime(2026, 10, 12),
+      mainVersionId: 'v5',
+    ),
+    Recipe(
+      id: 'r4',
+      name: 'Pancakes con miel',
+      description: 'Torre de pancakes esponjosos con miel de abeja.',
+      imageUrl: _img('photo-1567620905732-2d1ec7ab7445'),
+      categoryId: 'c7',
+      authorId: 'u4',
+      createdAt: DateTime(2026, 10, 20),
+      mainVersionId: 'v6',
+    ),
+    Recipe(
+      id: 'r5',
+      name: 'Copa de chocolate',
+      description: 'Capas de mousse de chocolate bitter y crema.',
+      imageUrl: _img('photo-1563805042-7684c019e1cb'),
+      categoryId: 'c4',
+      authorId: 'u3',
+      createdAt: DateTime(2026, 11, 2),
+      mainVersionId: 'v7',
+    ),
+    Recipe(
+      id: 'r6',
+      name: 'Ensalada fresca de naranja',
+      description: 'Hojas verdes, cebolla morada y gajos de naranja.',
+      imageUrl: _img('photo-1540189549336-e6e99c3679fe'),
+      categoryId: 'c6',
+      authorId: 'u5',
+      createdAt: DateTime(2026, 11, 8),
+      mainVersionId: 'v8',
+    ),
+    Recipe(
+      id: 'r7',
+      name: 'Helado con fudge y caramelo',
+      description: 'Helado de vainilla con brownie y salsa de caramelo.',
+      imageUrl: _img('photo-1551024506-0bccd828d307'),
+      categoryId: 'c4',
+      authorId: 'u1',
+      createdAt: DateTime(2026, 11, 10),
+      mainVersionId: 'v9',
+    ),
+    Recipe(
+      id: 'r8',
+      name: 'Pizza casera de pollo',
+      description: 'Masa delgada, mozzarella y pollo a la parrilla.',
+      imageUrl: _img('photo-1565299624946-b28f40a0ae38'),
+      categoryId: 'c9',
+      authorId: 'u5',
+      createdAt: DateTime(2026, 11, 12),
+      mainVersionId: 'v10',
+    ),
+  ];
+
+  static final versions = <RecipeVersion>[
+    RecipeVersion(
+      id: 'v1',
+      recipeId: 'r1',
+      number: 1,
+      title: 'Ceviche tradicional',
+      createdBy: 'u1',
+      createdAt: DateTime(2026, 9, 2),
+      servings: 2,
+      prepMinutes: 25,
+      cookMinutes: 0,
+      difficulty: Difficulty.medium,
+      notes: 'La receta clásica de la casa.',
+      ingredients: const [
+        VersionIngredient(ingredientId: 'i1', quantity: 500, unit: MeasureUnit.gram, note: 'Fresco, en cubos de 2 cm', purchase: _tilapia),
+        VersionIngredient(ingredientId: 'i2', quantity: 10, unit: MeasureUnit.unit, purchase: _limon),
+        VersionIngredient(ingredientId: 'i3', quantity: 200, unit: MeasureUnit.gram, note: 'En pluma fina', purchase: _cebolla),
+        VersionIngredient(ingredientId: 'i4', quantity: 2, unit: MeasureUnit.unit, purchase: _aji),
+        VersionIngredient(ingredientId: 'i5', quantity: 10, unit: MeasureUnit.gram, purchase: _culantro),
+        VersionIngredient(ingredientId: 'i6', quantity: 5, unit: MeasureUnit.gram, purchase: _sal),
+        VersionIngredient(ingredientId: 'i7', quantity: 300, unit: MeasureUnit.gram, note: 'Sancochado', purchase: _camote),
+        VersionIngredient(ingredientId: 'i8', quantity: 1, unit: MeasureUnit.unit, purchase: _choclo),
+      ],
+      steps: const [
+        'Cortar la tilapia en cubos de 2 cm y mantener en frío.',
+        'Cortar la cebolla en pluma y lavarla con agua fría.',
+        'Exprimir los limones sin presionar demasiado para evitar el amargor.',
+        'Sazonar el pescado con sal y ají limo picado.',
+        'Agregar el jugo de limón y mezclar; dejar reposar 5 minutos.',
+        'Añadir la cebolla y el culantro picado.',
+        'Servir con camote y choclo.',
+      ],
+    ),
+    RecipeVersion(
+      id: 'v2',
+      recipeId: 'r1',
+      number: 2,
+      title: 'Más limón, menos cebolla',
+      parentVersionId: 'v1',
+      createdBy: 'u2',
+      createdAt: DateTime(2026, 9, 20),
+      servings: 2,
+      prepMinutes: 20,
+      cookMinutes: 0,
+      difficulty: Difficulty.medium,
+      notes: 'Más ácido y menos picante de cebolla. Marinado más corto.',
+      ingredients: const [
+        VersionIngredient(ingredientId: 'i1', quantity: 500, unit: MeasureUnit.gram, note: 'Fresco, en cubos de 2 cm', purchase: _tilapia),
+        VersionIngredient(ingredientId: 'i2', quantity: 14, unit: MeasureUnit.unit, purchase: _limon),
+        VersionIngredient(ingredientId: 'i3', quantity: 120, unit: MeasureUnit.gram, note: 'En pluma muy fina', purchase: _cebolla),
+        VersionIngredient(ingredientId: 'i4', quantity: 2, unit: MeasureUnit.unit, purchase: _aji),
+        VersionIngredient(ingredientId: 'i5', quantity: 10, unit: MeasureUnit.gram, purchase: _culantro),
+        VersionIngredient(ingredientId: 'i6', quantity: 5, unit: MeasureUnit.gram, purchase: _sal),
+        VersionIngredient(ingredientId: 'i7', quantity: 300, unit: MeasureUnit.gram, note: 'Sancochado', purchase: _camote),
+        VersionIngredient(ingredientId: 'i8', quantity: 1, unit: MeasureUnit.unit, purchase: _choclo),
+      ],
+      steps: const [
+        'Cortar la tilapia en cubos de 2 cm y mantener en frío.',
+        'Cortar la cebolla en pluma y lavarla con agua fría.',
+        'Exprimir los limones sin presionar demasiado para evitar el amargor.',
+        'Sazonar el pescado con sal y ají limo picado.',
+        'Agregar el jugo de limón y mezclar; dejar reposar solo 3 minutos.',
+        'Añadir la cebolla y el culantro picado.',
+        'Servir con camote y choclo.',
+      ],
+    ),
+    RecipeVersion(
+      id: 'v3',
+      recipeId: 'r1',
+      number: 3,
+      title: 'Leche de tigre con rocoto y kion',
+      parentVersionId: 'v2',
+      createdBy: 'u3',
+      createdAt: DateTime(2026, 10, 15),
+      servings: 2,
+      prepMinutes: 30,
+      cookMinutes: 0,
+      difficulty: Difficulty.hard,
+      notes: 'Primero se prepara la leche de tigre y luego se cura el pescado. Sin choclo; con cancha.',
+      ingredients: const [
+        VersionIngredient(ingredientId: 'i1', quantity: 500, unit: MeasureUnit.gram, note: 'Fresco, en cubos de 2 cm', purchase: _tilapia),
+        VersionIngredient(ingredientId: 'i2', quantity: 14, unit: MeasureUnit.unit, purchase: _limon),
+        VersionIngredient(ingredientId: 'i3', quantity: 120, unit: MeasureUnit.gram, purchase: _cebolla),
+        VersionIngredient(ingredientId: 'i10', quantity: 1, unit: MeasureUnit.unit, note: 'Sin venas', purchase: _rocoto),
+        VersionIngredient(ingredientId: 'i9', quantity: 10, unit: MeasureUnit.gram, purchase: _kion),
+        VersionIngredient(ingredientId: 'i11', quantity: 20, unit: MeasureUnit.gram, purchase: _apio),
+        VersionIngredient(ingredientId: 'i5', quantity: 15, unit: MeasureUnit.gram, purchase: _culantro),
+        VersionIngredient(ingredientId: 'i6', quantity: 5, unit: MeasureUnit.gram, purchase: _sal),
+        VersionIngredient(ingredientId: 'i7', quantity: 300, unit: MeasureUnit.gram, note: 'Sancochado', purchase: _camote),
+        VersionIngredient(ingredientId: 'i12', quantity: 60, unit: MeasureUnit.gram, purchase: _cancha),
+      ],
+      steps: const [
+        'Cortar la cebolla en pluma y lavarla con agua fría.',
+        'Licuar kion, apio, un trozo de pescado y parte del jugo de limón: esa es la leche de tigre.',
+        'Cortar la tilapia en cubos de 2 cm y mantener en frío.',
+        'Sazonar el pescado con sal y rocoto picado.',
+        'Bañar el pescado con la leche de tigre y el resto del limón; reposar 3 minutos.',
+        'Añadir la cebolla y el culantro picado.',
+        'Servir con camote y cancha serrana.',
+      ],
+    ),
+    _simple('v4', 'r2', 'u3', DateTime(2026, 10, 1), 4, Difficulty.easy, 15, 15, const [
+      VersionIngredient(ingredientId: 'i13', quantity: 200, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 4, quantity: 500, unit: MeasureUnit.gram)),
+      VersionIngredient(ingredientId: 'i14', quantity: 250, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 3, quantity: 500, unit: MeasureUnit.gram)),
+      VersionIngredient(ingredientId: 'i15', quantity: 3, unit: MeasureUnit.tablespoon, purchase: PurchaseInfo(price: 9, quantity: 500, unit: MeasureUnit.milliliter)),
+      VersionIngredient(ingredientId: 'i2', quantity: 2, unit: MeasureUnit.unit, purchase: _limon),
+    ], const ['Lavar y cocinar la quinua 15 minutos.', 'Cortar los tomates por la mitad.', 'Mezclar todo y aliñar con limón y aceite.']),
+    _simple('v5', 'r3', 'u2', DateTime(2026, 10, 12), 2, Difficulty.medium, 15, 12, const [
+      VersionIngredient(ingredientId: 'i20', quantity: 300, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 28, quantity: 1, unit: MeasureUnit.kilogram)),
+      VersionIngredient(ingredientId: 'i13', quantity: 120, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 4, quantity: 500, unit: MeasureUnit.gram)),
+      VersionIngredient(ingredientId: 'i17', quantity: 2, unit: MeasureUnit.unit, purchase: PurchaseInfo(price: 3.6, quantity: 12, unit: MeasureUnit.unit)),
+      VersionIngredient(ingredientId: 'i21', quantity: 1, unit: MeasureUnit.unit, purchase: PurchaseInfo(price: 1, quantity: 1, unit: MeasureUnit.unit)),
+    ], const ['Cocinar la quinua.', 'Dorar el salmón 4 minutos por lado.', 'Armar el bowl con verduras y huevo.']),
+    _simple('v6', 'r4', 'u4', DateTime(2026, 10, 20), 4, Difficulty.easy, 10, 15, const [
+      VersionIngredient(ingredientId: 'i16', quantity: 250, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 1.4, quantity: 1, unit: MeasureUnit.kilogram)),
+      VersionIngredient(ingredientId: 'i17', quantity: 2, unit: MeasureUnit.unit, purchase: PurchaseInfo(price: 3.6, quantity: 12, unit: MeasureUnit.unit)),
+      VersionIngredient(ingredientId: 'i18', quantity: 300, unit: MeasureUnit.milliliter, purchase: PurchaseInfo(price: 1.1, quantity: 1, unit: MeasureUnit.liter)),
+      VersionIngredient(ingredientId: 'i22', quantity: 4, unit: MeasureUnit.tablespoon, purchase: PurchaseInfo(price: 6, quantity: 500, unit: MeasureUnit.milliliter)),
+    ], const ['Mezclar harina, huevos y leche.', 'Cocinar en sartén caliente.', 'Servir con miel.']),
+    _simple('v7', 'r5', 'u3', DateTime(2026, 11, 2), 4, Difficulty.medium, 25, 5, const [
+      VersionIngredient(ingredientId: 'i19', quantity: 200, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 5, quantity: 250, unit: MeasureUnit.gram)),
+      VersionIngredient(ingredientId: 'i18', quantity: 250, unit: MeasureUnit.milliliter, purchase: PurchaseInfo(price: 1.1, quantity: 1, unit: MeasureUnit.liter)),
+    ], const ['Derretir el chocolate.', 'Incorporar la leche caliente.', 'Refrigerar 3 horas en copas.']),
+    _simple('v8', 'r6', 'u5', DateTime(2026, 11, 8), 2, Difficulty.easy, 10, 0, const [
+      VersionIngredient(ingredientId: 'i21', quantity: 1, unit: MeasureUnit.unit, purchase: PurchaseInfo(price: 1, quantity: 1, unit: MeasureUnit.unit)),
+      VersionIngredient(ingredientId: 'i23', quantity: 2, unit: MeasureUnit.unit, purchase: PurchaseInfo(price: 2, quantity: 6, unit: MeasureUnit.unit)),
+      VersionIngredient(ingredientId: 'i3', quantity: 50, unit: MeasureUnit.gram, purchase: _cebolla),
+    ], const ['Lavar las hojas.', 'Pelar la naranja en gajos.', 'Mezclar y aliñar.']),
+    _simple('v9', 'r7', 'u1', DateTime(2026, 11, 10), 2, Difficulty.easy, 5, 0, const [
+      VersionIngredient(ingredientId: 'i25', quantity: 300, unit: MeasureUnit.milliliter, purchase: PurchaseInfo(price: 6, quantity: 1, unit: MeasureUnit.liter)),
+      VersionIngredient(ingredientId: 'i19', quantity: 50, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 5, quantity: 250, unit: MeasureUnit.gram)),
+    ], const ['Servir el helado sobre el brownie.', 'Bañar con caramelo y fudge.']),
+    _simple('v10', 'r8', 'u5', DateTime(2026, 11, 12), 4, Difficulty.medium, 30, 15, const [
+      VersionIngredient(ingredientId: 'i16', quantity: 300, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 1.4, quantity: 1, unit: MeasureUnit.kilogram)),
+      VersionIngredient(ingredientId: 'i24', quantity: 200, unit: MeasureUnit.gram, purchase: PurchaseInfo(price: 4.5, quantity: 250, unit: MeasureUnit.gram)),
+    ], const ['Preparar la masa y dejar reposar.', 'Estirar, cubrir y hornear 15 minutos.']),
+  ];
+
+  static RecipeVersion _simple(
+    String id,
+    String recipeId,
+    String by,
+    DateTime at,
+    int servings,
+    Difficulty d,
+    int prep,
+    int cook,
+    List<VersionIngredient> ingredients,
+    List<String> steps,
+  ) =>
+      RecipeVersion(
+        id: id,
+        recipeId: recipeId,
+        number: 1,
+        title: 'Versión original',
+        createdBy: by,
+        createdAt: at,
+        servings: servings,
+        prepMinutes: prep,
+        cookMinutes: cook,
+        difficulty: d,
+        ingredients: ingredients,
+        steps: steps,
+      );
+
+  static final invitations = <Invitation>[
+    Invitation(id: 'inv1', recipeId: 'r1', versionId: 'v1', fromUserId: 'u1', toUserId: 'u4', message: '¡Ven a probar el ceviche clásico!', status: InvitationStatus.completed, createdAt: DateTime(2026, 9, 5)),
+    Invitation(id: 'inv2', recipeId: 'r1', versionId: 'v2', fromUserId: 'u1', toUserId: 'u5', message: 'Probemos la versión de Carlos el sábado.', createdAt: DateTime(2026, 11, 14)),
+    Invitation(id: 'inv3', recipeId: 'r1', versionId: 'v2', fromUserId: 'u1', toUserId: 'u2', status: InvitationStatus.accepted, createdAt: DateTime(2026, 11, 13)),
+    Invitation(id: 'inv4', recipeId: 'r1', versionId: 'v3', fromUserId: 'u3', toUserId: 'u1', message: 'Hice mi versión con leche de tigre. ¿Te animas?', createdAt: DateTime(2026, 11, 15)),
+    Invitation(id: 'inv5', recipeId: 'r3', versionId: 'v5', fromUserId: 'u2', toUserId: 'u1', message: 'Bowl de salmón para el almuerzo.', status: InvitationStatus.accepted, createdAt: DateTime(2026, 11, 12)),
+  ];
+
+  static final ratings = <Rating>[
+    Rating(id: 'ra1', userId: 'u4', recipeId: 'r1', versionId: 'v1', invitationId: 'inv1', stars: 4, flavor: 4, presentation: 4, ease: 4, value: 5, comment: 'Muy rico, aunque la cebolla se sentía mucho.', createdAt: DateTime(2026, 9, 6)),
+    Rating(id: 'ra2', userId: 'u2', recipeId: 'r1', versionId: 'v1', stars: 4, flavor: 4, presentation: 3, ease: 4, value: 4, comment: 'Buen punto de limón.', createdAt: DateTime(2026, 9, 8)),
+    Rating(id: 'ra3', userId: 'u3', recipeId: 'r1', versionId: 'v1', stars: 5, flavor: 5, presentation: 4, ease: 4, value: 5, createdAt: DateTime(2026, 9, 9)),
+    Rating(id: 'ra4', userId: 'u5', recipeId: 'r1', versionId: 'v1', stars: 4, flavor: 4, presentation: 4, ease: 5, value: 4, createdAt: DateTime(2026, 9, 10)),
+    Rating(id: 'ra5', userId: 'u1', recipeId: 'r1', versionId: 'v2', stars: 5, flavor: 5, presentation: 4, ease: 4, value: 5, comment: 'La mejor versión hasta ahora.', createdAt: DateTime(2026, 9, 22)),
+    Rating(id: 'ra6', userId: 'u3', recipeId: 'r1', versionId: 'v2', stars: 4, flavor: 5, presentation: 4, ease: 4, value: 4, createdAt: DateTime(2026, 9, 23)),
+    Rating(id: 'ra7', userId: 'u4', recipeId: 'r1', versionId: 'v2', stars: 5, flavor: 5, presentation: 5, ease: 4, value: 5, comment: 'Perfecto de ácido.', createdAt: DateTime(2026, 9, 25)),
+    Rating(id: 'ra8', userId: 'u5', recipeId: 'r1', versionId: 'v2', stars: 4, flavor: 4, presentation: 4, ease: 5, value: 4, createdAt: DateTime(2026, 9, 28)),
+    Rating(id: 'ra9', userId: 'u2', recipeId: 'r1', versionId: 'v3', stars: 5, flavor: 5, presentation: 5, ease: 3, value: 4, comment: 'La leche de tigre es otro nivel.', createdAt: DateTime(2026, 10, 16)),
+    Rating(id: 'ra10', userId: 'u1', recipeId: 'r2', versionId: 'v4', stars: 4, flavor: 4, presentation: 5, ease: 5, value: 5, createdAt: DateTime(2026, 10, 3)),
+    Rating(id: 'ra11', userId: 'u1', recipeId: 'r5', versionId: 'v7', stars: 5, flavor: 5, presentation: 5, ease: 4, value: 4, createdAt: DateTime(2026, 11, 3)),
+  ];
+
+  static final comments = <Comment>[
+    Comment(id: 'co1', userId: 'u2', versionId: 'v1', text: 'Prueba lavar la cebolla con hielo, queda más crocante.', createdAt: DateTime(2026, 9, 7)),
+    Comment(id: 'co2', userId: 'u4', versionId: 'v2', text: '¿Con limón sutil o limón Tahití?', createdAt: DateTime(2026, 9, 26)),
+    Comment(id: 'co3', userId: 'u2', versionId: 'v2', text: 'Sutil siempre 🍋', createdAt: DateTime(2026, 9, 26, 12)),
+    Comment(id: 'co4', userId: 'u1', versionId: 'v3', text: 'Me encanta la idea de la cancha en lugar del choclo.', createdAt: DateTime(2026, 10, 16)),
+  ];
+
+  static final notifications = <AppNotification>[
+    AppNotification(id: 'n1', title: 'Nueva invitación', body: 'María te invitó a probar "Ceviche · V3".', createdAt: DateTime(2026, 11, 15), route: '/invitations'),
+    AppNotification(id: 'n2', title: 'Nueva versión', body: 'María creó la versión 3 de tu ceviche.', createdAt: DateTime(2026, 10, 15), route: '/recipe/r1/versions'),
+    AppNotification(id: 'n3', title: 'Nueva calificación', body: 'Lucía calificó tu ceviche con 4 estrellas.', createdAt: DateTime(2026, 9, 6), route: '/version/v1', read: true),
+  ];
+
+  static const favoriteRecipeIds = {'r1', 'r5'};
+}

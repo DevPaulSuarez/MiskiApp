@@ -1,0 +1,426 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_theme.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../shared/widgets/common_widgets.dart';
+import '../../../social/presentation/providers/social_providers.dart';
+import '../../domain/entities/recipe.dart';
+import '../providers/recipe_providers.dart';
+import '../widgets/recipe_card.dart';
+
+/// Shows a recipe through one selected version. Also used as "version detail".
+class RecipeDetailScreen extends ConsumerStatefulWidget {
+  const RecipeDetailScreen({super.key, required String this.recipeId}) : versionId = null;
+  const RecipeDetailScreen.forVersion({super.key, required String this.versionId}) : recipeId = null;
+
+  final String? recipeId;
+  final String? versionId;
+
+  @override
+  ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
+  String? _versionId;
+  int? _servings;
+
+  @override
+  Widget build(BuildContext context) {
+    final fixedVersion = widget.versionId == null ? null : ref.watch(versionByIdProvider(widget.versionId!));
+    final recipeId = widget.recipeId ?? fixedVersion?.recipeId;
+    final recipe = recipeId == null ? null : ref.watch(recipeByIdProvider(recipeId));
+    if (recipe == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const EmptyState(icon: Icons.error_outline, title: 'Receta no encontrada', message: 'Puede que haya sido eliminada.'),
+      );
+    }
+
+    final versions = ref.watch(versionsOfRecipeProvider(recipe.id));
+    final version = ref.watch(versionByIdProvider(_versionId ?? widget.versionId ?? recipe.mainVersionId))!;
+    final servings = _servings ?? version.servings;
+    final factor = ref.read(servingCalculatorProvider).factor(originalServings: version.servings, desiredServings: servings);
+    final costs = ref.watch(costCalculatorProvider).breakdown(version, servings: servings);
+    final rating = ref.watch(ratingSummaryProvider(version.id));
+    final comments = ref.watch(commentsOfVersionProvider(version.id));
+    final author = ref.watch(userByIdProvider(version.createdBy));
+    final category = ref.watch(categoriesProvider).where((c) => c.id == recipe.categoryId).firstOrNull;
+    final isMain = recipe.mainVersionId == version.id;
+    final text = Theme.of(context).textTheme;
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 280,
+            pinned: true,
+            backgroundColor: AppColors.forest,
+            foregroundColor: Colors.white,
+            actions: [
+              FavoriteButton(recipeId: recipe.id),
+              PopupMenuButton<String>(
+                iconColor: Colors.white,
+                onSelected: (v) => _onMenu(v, recipe, version),
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'history', child: Text('Historial de versiones')),
+                  if (versions.length > 1) const PopupMenuItem(value: 'compare', child: Text('Comparar versiones')),
+                  if (!isMain) const PopupMenuItem(value: 'main', child: Text('Marcar como versión principal')),
+                  PopupMenuItem(
+                    value: 'archive',
+                    child: Text(recipe.status == RecipeStatus.active ? 'Archivar receta' : 'Restaurar receta'),
+                  ),
+                ],
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              background: RecipeImage(url: recipe.imageUrl, radius: 0),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (category != null) Text('${category.emoji} ${category.name}'.toUpperCase(), style: text.labelSmall?.copyWith(color: AppColors.wine, fontWeight: FontWeight.w800, letterSpacing: 1)),
+                  const SizedBox(height: 4),
+                  Text(recipe.name, style: text.headlineSmall),
+                  const SizedBox(height: 8),
+                  Text(recipe.description, style: text.bodyMedium?.copyWith(height: 1.4)),
+                  const SizedBox(height: 16),
+                  // Version selector
+                  SizedBox(
+                    height: 40,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        for (final v in versions)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text('V${v.number}${v.id == recipe.mainVersionId ? ' ★' : ''}'),
+                              selected: v.id == version.id,
+                              onSelected: (_) => setState(() {
+                                _versionId = v.id;
+                                _servings = null;
+                              }),
+                            ),
+                          ),
+                        ActionChip(
+                          avatar: const Icon(Icons.account_tree_rounded, size: 18, color: AppColors.wine),
+                          label: const Text('Historial'),
+                          onPressed: () => context.push('/recipe/${recipe.id}/versions'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _VersionBanner(version: version, authorName: author.name, isMain: isMain),
+                  const SizedBox(height: 14),
+                  Wrap(spacing: 8, runSpacing: 8, children: [
+                    InfoPill(icon: Icons.timer_outlined, label: 'Prep. ${Fmt.minutes(version.prepMinutes)}'),
+                    if (version.cookMinutes > 0) InfoPill(icon: Icons.local_fire_department_outlined, label: 'Cocción ${Fmt.minutes(version.cookMinutes)}'),
+                    InfoPill(icon: Icons.signal_cellular_alt_rounded, label: version.difficulty.label),
+                    InfoPill(icon: Icons.people_outline_rounded, label: 'Original: ${version.servings} pers.'),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+          // Servings adjuster
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+              child: _ServingsCard(
+                servings: servings,
+                original: version.servings,
+                onChanged: (s) => setState(() => _servings = s),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(child: SectionHeader('Ingredientes (${version.ingredients.length})')),
+          SliverList.separated(
+            itemCount: version.ingredients.length,
+            separatorBuilder: (_, _) => const Divider(indent: 20, endIndent: 20),
+            itemBuilder: (_, i) {
+              final line = version.ingredients[i];
+              final ing = ref.watch(ingredientByIdProvider(line.ingredientId));
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                dense: true,
+                leading: const Icon(Icons.circle, size: 8, color: AppColors.gold),
+                minLeadingWidth: 8,
+                title: Text(ing?.name ?? '—', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                subtitle: line.note.isEmpty ? null : Text(line.note),
+                trailing: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    '${Fmt.qty(line.quantity * factor)} ${line.unit.symbol}',
+                    key: ValueKey(servings),
+                    style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.forest, fontSize: 15),
+                  ),
+                ),
+              );
+            },
+          ),
+          const SliverToBoxAdapter(child: SectionHeader('Preparación')),
+          SliverList.builder(
+            itemCount: version.steps.length,
+            itemBuilder: (_, i) => Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: AppColors.wine,
+                    child: Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Text(version.steps[i], style: text.bodyMedium?.copyWith(height: 1.4)),
+                  )),
+                ],
+              ),
+            ),
+          ),
+          // Costs summary
+          SliverToBoxAdapter(
+            child: SectionHeader('Costos', action: 'Ver desglose', onAction: () => context.push('/version/${version.id}/costs?servings=$servings')),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(children: [
+                Expanded(child: _MetricCard(label: 'Total ($servings pers.)', value: Fmt.money(costs.total), color: AppColors.wine)),
+                const SizedBox(width: 12),
+                Expanded(child: _MetricCard(label: 'Por persona', value: Fmt.money(costs.perServing), color: AppColors.forest)),
+              ]),
+            ),
+          ),
+          // Ratings
+          SliverToBoxAdapter(
+            child: SectionHeader('Valoraciones de V${version.number}', action: 'Calificar', onAction: () => context.push('/version/${version.id}/rate')),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: rating.count == 0
+                      ? const Text('Esta versión aún no tiene valoraciones.')
+                      : Row(children: [
+                          Column(children: [
+                            Text(rating.average.toStringAsFixed(1), style: text.headlineMedium),
+                            StarRating(value: rating.average),
+                            const SizedBox(height: 4),
+                            Text('${rating.count} valoraciones', style: text.bodySmall),
+                          ]),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(children: [
+                              _CriterionBar('Sabor', rating.flavor),
+                              _CriterionBar('Presentación', rating.presentation),
+                              _CriterionBar('Facilidad', rating.ease),
+                              _CriterionBar('Costo/calidad', rating.value),
+                            ]),
+                          ),
+                        ]),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/version/${version.id}/comments'),
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
+                label: Text('Comentarios (${comments.length})'),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            border: Border(top: BorderSide(color: AppColors.beigeSoft)),
+          ),
+          child: Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/version/${version.id}/invite'),
+                icon: const Icon(Icons.send_rounded, size: 18),
+                label: const Text('Invitar'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 2,
+              child: FilledButton.icon(
+                onPressed: () => context.push('/version/${version.id}/derive'),
+                icon: const Icon(Icons.call_split_rounded, size: 18),
+                label: Text('Nueva versión desde V${version.number}'),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onMenu(String action, Recipe recipe, RecipeVersion version) async {
+    final notifier = ref.read(recipesProvider.notifier);
+    switch (action) {
+      case 'history':
+        context.push('/recipe/${recipe.id}/versions');
+      case 'compare':
+        final vs = ref.read(versionsOfRecipeProvider(recipe.id));
+        final other = vs.firstWhere((v) => v.id != version.id);
+        context.push('/recipe/${recipe.id}/compare?a=${other.id}&b=${version.id}');
+      case 'main':
+        notifier.setMainVersion(recipe.id, version.id);
+        showSuccess(context, 'V${version.number} es ahora la versión principal');
+      case 'archive':
+        final archiving = recipe.status == RecipeStatus.active;
+        if (archiving &&
+            !await confirmDialog(context, 'Archivar receta',
+                'La receta se ocultará del recetario pero conservará todas sus versiones y valoraciones.',
+                confirm: 'Archivar')) {
+          return;
+        }
+        notifier.toggleArchive(recipe.id);
+        if (mounted) showSuccess(context, archiving ? 'Receta archivada' : 'Receta restaurada');
+    }
+  }
+}
+
+class _VersionBanner extends StatelessWidget {
+  const _VersionBanner({required this.version, required this.authorName, required this.isMain});
+  final RecipeVersion version;
+  final String authorName;
+  final bool isMain;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.forest,
+          borderRadius: BorderRadius.circular(AppTheme.radiusM),
+        ),
+        child: Row(children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(10)),
+            child: Text('V${version.number}', style: const TextStyle(color: AppColors.forest, fontWeight: FontWeight.w900)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(version.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+              Text(
+                'Por $authorName · ${Fmt.date(version.createdAt)}${isMain ? ' · Principal' : ''}',
+                style: const TextStyle(color: AppColors.beige, fontSize: 12),
+              ),
+            ]),
+          ),
+        ]),
+      );
+}
+
+class _ServingsCard extends StatelessWidget {
+  const _ServingsCard({required this.servings, required this.original, required this.onChanged});
+  final int servings;
+  final int original;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(children: [
+            const Icon(Icons.people_alt_rounded, color: AppColors.wine),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('Porciones', style: TextStyle(fontWeight: FontWeight.w800)),
+                Text(
+                  servings == original ? 'Cantidades originales' : 'x${Fmt.qty(servings / original)} de la receta original',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ]),
+            ),
+            IconButton.filledTonal(
+              onPressed: servings > 1 ? () => onChanged(servings - 1) : null,
+              icon: const Icon(Icons.remove_rounded),
+            ),
+            SizedBox(
+              width: 40,
+              child: Text('$servings', textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+            ),
+            IconButton.filled(
+              style: IconButton.styleFrom(backgroundColor: AppColors.forest),
+              onPressed: servings < 99 ? () => onChanged(servings + 1) : null,
+              icon: const Icon(Icons.add_rounded),
+            ),
+          ]),
+        ),
+      );
+}
+
+class _MetricCard extends StatelessWidget {
+  const _MetricCard({required this.label, required this.value, required this.color});
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(AppTheme.radiusM),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color)),
+        ]),
+      );
+}
+
+class _CriterionBar extends StatelessWidget {
+  const _CriterionBar(this.label, this.value);
+  final String label;
+  final double value;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(children: [
+          SizedBox(width: 92, child: Text(label, style: const TextStyle(fontSize: 12))),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: value / 5,
+                minHeight: 6,
+                backgroundColor: AppColors.beigeSoft,
+                color: AppColors.gold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(value.toStringAsFixed(1), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+        ]),
+      );
+}
