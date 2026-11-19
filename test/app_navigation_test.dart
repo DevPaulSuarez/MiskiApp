@@ -96,4 +96,51 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.widgetWithText(TextField, 'Torta de chocolate'), findsOneWidget);
   });
+
+  testWidgets('recipe shows other people\'s preparations and new recipe warns about existing dish', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(400, 900));
+    await tester.pumpWidget(const ProviderScope(child: MiskiApp()));
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ceviche peruano de tilapia').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Versión de Carlos · Principal'), findsOneWidget);
+
+    // The version tree is reachable from the first chip, whatever the number of versions.
+    await tester.tap(find.widgetWithText(ActionChip, 'Árbol de versiones'));
+    await tester.pumpAndSettle();
+    expect(find.text('Basada en V2 de Carlos'), findsOneWidget); // María's V3 under Carlos's V2
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    final section = find.text('Otras formas de prepararlo (3)');
+    await tester.scrollUntilVisible(section, 300, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Tu versión · V1'), findsOneWidget);
+    expect(find.text('Versión de María · V3'), findsOneWidget);
+
+    // Viewing Carlos's V2 while I have V1: the app asks whether to continue my own version.
+    await tester.tap(find.text('Nueva versión'));
+    await tester.pumpAndSettle();
+    expect(find.text('Continuar mi versión · V1'), findsOneWidget);
+    await tester.tap(find.text('Continuar mi versión · V1'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Partes de una copia de V1'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    // New recipe named like an existing dish suggests creating your version instead.
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Nueva receta').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Nueva receta').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nombre de la receta'), 'Ceviche de Paul');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Ya existe "Ceviche peruano de tilapia"'), findsOneWidget);
+    expect(find.text('Crear mi versión'), findsOneWidget);
+  });
 }

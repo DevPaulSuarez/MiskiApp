@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miski_app/core/mock/mock_data.dart';
 import 'package:miski_app/features/recipes/domain/entities/measure_unit.dart';
 import 'package:miski_app/features/recipes/domain/entities/recipe.dart';
+import 'package:miski_app/features/recipes/domain/services/dish_matcher.dart';
 import 'package:miski_app/features/recipes/domain/services/recipe_calculators.dart';
 import 'package:miski_app/features/social/domain/social_entities.dart';
 
@@ -83,5 +84,43 @@ void main() {
     expect(u.daysUntilBirthday(DateTime(2026, 11, 19)), 20);
     expect(u.daysUntilBirthday(DateTime(2026, 12, 9, 18)), 0);
     expect(u.daysUntilBirthday(DateTime(2026, 12, 10)), 364);
+  });
+
+  group('dish matcher', () {
+    const matcher = DishMatcher();
+
+    test('ingredient similarity is shared over all distinct ingredients', () {
+      expect(ingredientSimilarity(['a', 'b', 'c'], ['a', 'b', 'd']), 0.5);
+      expect(ingredientSimilarity(['a'], ['a']), 1);
+      expect(ingredientSimilarity(<String>[], <String>[]), 0);
+    });
+
+    test('name match ignores connector words', () {
+      final hits = matcher.byName('Ceviche de Paul', MockData.recipes);
+      expect(hits.map((r) => r.id), ['r1']);
+      expect(matcher.byName('de la con', MockData.recipes), isEmpty);
+    });
+
+    test('a ceviche with one ingredient swapped is detected as the same dish', () {
+      // V2 without choclo (i8), plus cancha (i12): 7 of 9 distinct ingredients shared.
+      // V1 has the same ingredients as V2; the main version (V2) wins the tie.
+      final mine = ['i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7', 'i12'];
+      final m = matcher.byIngredients(mine, MockData.recipes, MockData.versions)!;
+      expect(m.recipe.id, 'r1');
+      expect(m.version.id, 'v2');
+      expect(m.percent, 78);
+    });
+
+    test('a different dish is not matched', () {
+      // Salmon, lemon and ice cream: no existing dish shares 70% of these.
+      expect(matcher.byIngredients(['i20', 'i2', 'i25'], MockData.recipes, MockData.versions), isNull);
+    });
+
+    test('preparations keep each author best version, best rated first', () {
+      final ceviche = MockData.versions.where((x) => x.recipeId == 'r1').toList();
+      final ratings = {'v1': (average: 4.0, count: 4), 'v2': (average: 4.5, count: 4), 'v3': (average: 5.0, count: 1)};
+      final preps = preparationsByAuthor(ceviche, (id) => ratings[id] ?? (average: 0.0, count: 0));
+      expect(preps.map((p) => p.authorId), ['u3', 'u2', 'u1']);
+    });
   });
 }

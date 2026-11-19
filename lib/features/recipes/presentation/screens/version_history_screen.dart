@@ -7,6 +7,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import '../../../social/presentation/providers/social_providers.dart';
 import '../../domain/entities/recipe.dart';
+import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
 
 /// Version tree: each version shows who derived it from which parent.
@@ -57,7 +58,7 @@ class _VersionHistoryScreenState extends ConsumerState<VersionHistoryScreen> {
     final costCalc = ref.watch(costCalculatorProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Historial de versiones')),
+      appBar: AppBar(title: const Text('Árbol de versiones')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
         children: [
@@ -156,7 +157,7 @@ class _VersionTile extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      '${author.name} · ${Fmt.date(version.createdAt)}',
+                      '${versionOwnerLabel(author, ref.watch(currentUserIdProvider))} · ${Fmt.date(version.createdAt)}',
                       style: Theme.of(context).textTheme.bodySmall,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -165,7 +166,10 @@ class _VersionTile extends ConsumerWidget {
                 if (parent != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('Derivada de V${parent.number}', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
+                    child: Text(
+                      ref.watch(basedOnLabelProvider(version.id)) ?? 'Derivada de V${parent.number}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                    ),
                   ),
                 const SizedBox(height: 6),
                 Wrap(spacing: 6, runSpacing: 6, children: [

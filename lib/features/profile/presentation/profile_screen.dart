@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/common_widgets.dart';
+import '../../recipes/presentation/providers/preparation_providers.dart';
 import '../../recipes/presentation/providers/recipe_providers.dart';
 import '../../recipes/presentation/screens/cookbook_screen.dart';
 import '../../recipes/presentation/widgets/recipe_card.dart';
@@ -29,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
 
     // Recipes the user owns.
     final ownRecipes = recipes.where((r) => r.authorId == uid).toList();
-    // Versions published on someone else's recipe: they live in that recipe, but count as contributions.
+    // The user's own way of preparing someone else's dish: it lives in that dish, under the user's name.
     final contributions =
         ref.watch(versionsProvider).where((v) => v.createdBy == uid && recipeById[v.recipeId]?.authorId != uid).toList()
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -53,7 +54,7 @@ class ProfileScreen extends ConsumerWidget {
             showBack: Navigator.of(context).canPop(),
             stats: [
               _Stat('${ownRecipes.length}', 'Recetas\npropias'),
-              _Stat('${contributions.length}', 'Aportes a\notras recetas'),
+              _Stat('${contributions.length}', 'Preparaciones\nde otros platos'),
               _Stat('${triedByRecipe.length}', 'Probadas y\ncalificadas'),
             ],
           ),
@@ -121,14 +122,14 @@ class ProfileScreen extends ConsumerWidget {
               child: RecipeListTile(recipe: r),
             ),
 
-          SectionHeader(isMe ? 'Mis aportes' : 'Sus aportes'),
+          SectionHeader(isMe ? 'Mis preparaciones' : 'Sus preparaciones'),
           if (contributions.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 isMe
-                    ? 'Cuando modifiques la receta de otra persona, tu versión aparecerá aquí.'
-                    : 'Aún no modificó recetas de otras personas.',
+                    ? 'Cuando prepares a tu manera un plato de otra persona, tu versión aparecerá aquí con tu nombre.'
+                    : 'Aún no preparó a su manera platos de otras personas.',
               ),
             ),
           for (final v in contributions)
@@ -142,7 +143,10 @@ class ProfileScreen extends ConsumerWidget {
                     child: Icon(Icons.account_tree_rounded, color: AppColors.wine),
                   ),
                   title: Text('${recipe.name} · V${v.number}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text('Receta de ${author.firstName} · ${v.title}'),
+                  subtitle: Text([
+                  author.id == meId ? 'Tu plato' : 'Plato de ${author.firstName}',
+                  ?ref.watch(basedOnLabelProvider(v.id)),
+                ].join(' · ')),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/version/${v.id}'),
                 );

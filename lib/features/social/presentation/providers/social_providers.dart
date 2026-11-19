@@ -101,6 +101,15 @@ class InvitationsNotifier extends Notifier<List<Invitation>> {
 
 final invitationsProvider = NotifierProvider<InvitationsNotifier, List<Invitation>>(InvitationsNotifier.new);
 
+/// People the current user has exchanged invitations with (sent or received).
+final friendIdsProvider = Provider<Set<String>>((ref) {
+  final me = ref.watch(currentUserIdProvider);
+  return {
+    for (final i in ref.watch(invitationsProvider))
+      if (i.fromUserId == me) i.toUserId else if (i.toUserId == me) i.fromUserId,
+  };
+});
+
 // --- Ratings ---
 class RatingsNotifier extends Notifier<List<Rating>> {
   @override

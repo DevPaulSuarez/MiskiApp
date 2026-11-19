@@ -350,7 +350,7 @@ abstract final class MockData {
 
   static final notifications = <AppNotification>[
     AppNotification(id: 'n1', userId: 'u1', title: 'Nueva invitación', body: 'María te invitó a probar "Ceviche · V3".', createdAt: DateTime(2026, 11, 15), route: '/invitations'),
-    AppNotification(id: 'n2', userId: 'u1', title: 'María modificó tu receta', body: 'Ceviche · V3 — Agregó: Rocoto, Kion (jengibre), Apio, Cancha serrana · Quitó: Ají limo, Choclo', createdAt: DateTime(2026, 10, 15), route: '/recipe/r1/versions'),
+    AppNotification(id: 'n2', userId: 'u1', title: 'María preparó tu plato a su manera', body: 'Ceviche · V3 — Agregó: Rocoto, Kion (jengibre), Apio, Cancha serrana · Quitó: Ají limo, Choclo', createdAt: DateTime(2026, 10, 15), route: '/recipe/r1/versions'),
     AppNotification(id: 'n3', userId: 'u1', title: 'Nueva calificación', body: 'Lucía calificó tu ceviche con 4 estrellas.', createdAt: DateTime(2026, 9, 6), route: '/version/v1', read: true),
   ];
 

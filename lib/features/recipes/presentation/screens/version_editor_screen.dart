@@ -8,6 +8,8 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import '../../../social/presentation/providers/social_providers.dart';
 import '../../domain/entities/recipe.dart';
+import '../../domain/services/dish_matcher.dart';
+import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
 import '../widgets/ingredient_line_sheet.dart';
 
@@ -82,7 +84,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     // Tabs that are off-screen are not mounted, so check required fields directly.
     if (_isNewRecipe && _name.text.trim().length < 3) {
       _tabs.animateTo(0);
@@ -101,16 +103,69 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       return;
     }
 
+    if (!_isNewRecipe) {
+      _publish(target: ref.read(recipeByIdProvider(_parent!.recipeId)), parent: _parent);
+      return;
+    }
+
+    // A "new" recipe that shares most ingredients with an existing dish is
+    // probably the same dish: offer to save it as the user's version of it.
+    final match = ref.read(dishMatcherProvider).byIngredients(
+          _ingredients.map((i) => i.ingredientId),
+          ref.read(recipesProvider),
+          ref.read(versionsProvider),
+        );
+    if (match != null) {
+      final asVersion = await _askSameDish(match);
+      if (!mounted || asVersion == null) return;
+      if (asVersion) {
+        _publish(target: match.recipe, parent: match.version);
+        return;
+      }
+    }
+    _publish();
+  }
+
+  Future<bool?> _askSameDish(DishMatch match) {
+    final author = ref.read(userByIdProvider(match.version.createdBy));
+    final me = ref.read(currentUserIdProvider);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Es el mismo plato?'),
+        content: Text(
+          'Tus ingredientes coinciden en un ${match.percent}% con "${match.recipe.name}" '
+          '(V${match.version.number} de ${author.id == me ? 'ti' : author.firstName}).\n\n'
+          'Para no repetir platos en la búsqueda, puedes guardarla como tu versión de ese plato, con tu nombre.\n\n'
+          'Si es otro plato con ingredientes parecidos (otra técnica u otra preparación), créalo como plato nuevo.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Crear plato nuevo')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Guardar como mi versión')),
+        ],
+      ),
+    );
+  }
+
+  /// Saves a new dish (when [target] is null) or a new version of [target] built from [parent].
+  void _publish({Recipe? target, RecipeVersion? parent}) {
     final me = ref.read(currentUserIdProvider);
     final versions = ref.read(versionsProvider.notifier);
-    final recipeId = _isNewRecipe ? newId('r') : _parent!.recipeId;
-    final number = _isNewRecipe ? 1 : versions.nextNumber(recipeId);
+    final isNewDish = target == null;
+    final recipeId = target?.id ?? newId('r');
+    final number = isNewDish ? 1 : versions.nextNumber(recipeId);
+    final typedTitle = _title.text.trim();
     final version = RecipeVersion(
       id: newId('v'),
       recipeId: recipeId,
       number: number,
-      title: _title.text.trim().isEmpty ? (_isNewRecipe ? 'Versión original' : 'Versión $number') : _title.text.trim(),
-      parentVersionId: _parent?.id,
+      title: typedTitle.isNotEmpty
+          ? typedTitle
+          : isNewDish
+              ? 'Versión original'
+              // Merged from the "new recipe" form: the name they typed describes their version.
+              : (_isNewRecipe ? _name.text.trim() : 'Versión $number'),
+      parentVersionId: parent?.id,
       createdBy: me,
       createdAt: DateTime.now(),
       servings: _servings,
@@ -122,7 +177,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       notes: _notes.text.trim(),
     );
 
-    if (_isNewRecipe) {
+    if (isNewDish) {
       ref.read(recipesProvider.notifier).save(Recipe(
             id: recipeId,
             name: _name.text.trim(),
@@ -135,38 +190,37 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
           ));
     }
     versions.add(version);
+
     final notifications = ref.read(notificationsProvider.notifier);
-    final recipe = _isNewRecipe ? null : ref.read(recipeByIdProvider(recipeId));
-    final isContribution = recipe != null && recipe.authorId != me;
-    if (isContribution) {
-      // Modifying someone else's recipe: the version stays in their recipe
-      // (counts as a contribution for me) and the author is told what changed.
+    if (target != null && target.authorId != me) {
+      // My way of preparing someone else's dish: it stays in their dish under my
+      // name, and the author is told which ingredients I added or removed.
       final changes = ref.read(versionComparatorProvider).ingredientChanges(
-            _parent!,
+            parent!,
             version,
             (id) => ref.read(ingredientByIdProvider(id))?.name ?? id,
           );
-      final myName = ref.read(userByIdProvider(me)).name.split(' ').first;
+      final myName = ref.read(userByIdProvider(me)).firstName;
       notifications.push(
-        '$myName modificó tu receta',
-        '${recipe.name} · V$number — ${changes.describe()}',
+        '$myName preparó tu plato a su manera',
+        '${target.name} · V$number — ${changes.describe()}',
         route: '/version/${version.id}',
-        toUserId: recipe.authorId,
+        toUserId: target.authorId,
       );
-      final authorName = ref.read(userByIdProvider(recipe.authorId)).name.split(' ').first;
+      final authorName = ref.read(userByIdProvider(target.authorId)).firstName;
       notifications.push(
-        'Aporte publicado',
-        'Tu V$number de "${recipe.name}" se sumó a la receta de $authorName.',
+        'Preparación publicada',
+        'Tu versión de "${target.name}" (V$number) ya aparece con tu nombre en el plato de $authorName.',
         route: '/version/${version.id}',
       );
     } else {
       notifications.push(
-        _isNewRecipe ? 'Receta creada' : 'Nueva versión publicada',
-        _isNewRecipe ? '"${_name.text.trim()}" ya está en tu recetario.' : 'Publicaste la V$number.',
+        isNewDish ? 'Receta creada' : 'Nueva versión publicada',
+        isNewDish ? '"${_name.text.trim()}" ya está en tu recetario.' : 'Publicaste la V$number.',
         route: '/version/${version.id}',
       );
     }
-    showSuccess(context, _isNewRecipe ? 'Receta creada' : 'Versión V$number creada');
+    showSuccess(context, isNewDish ? 'Receta creada' : 'Versión V$number creada');
     context.pushReplacement('/version/${version.id}');
   }
 
@@ -213,7 +267,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     final recipe = ref.read(recipeByIdProvider(_parent!.recipeId));
     if (recipe == null || recipe.authorId == ref.read(currentUserIdProvider)) return '';
     final author = ref.read(userByIdProvider(recipe.authorId)).name.split(' ').first;
-    return '\nSe sumará como tu aporte a la receta de $author, y le avisaremos qué ingredientes agregaste o quitaste.';
+    return '\nTu versión quedará con tu nombre dentro del plato de $author, y le avisaremos qué ingredientes agregaste o quitaste.';
   }
 
   Widget _buildInfoTab() {
@@ -269,6 +323,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
             decoration: const InputDecoration(labelText: 'Nombre de la receta'),
             validator: (v) => (v ?? '').trim().length < 3 ? 'Mínimo 3 caracteres' : null,
           ),
+          _SimilarDishesHint(name: _name),
           const SizedBox(height: 12),
           TextFormField(
             controller: _description,
@@ -494,5 +549,47 @@ class _Stepper extends StatelessWidget {
             icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.wine),
           ),
         ]),
+      );
+}
+
+/// While typing a new recipe's name, points to existing dishes with a similar name.
+class _SimilarDishesHint extends ConsumerWidget {
+  const _SimilarDishesHint({required this.name});
+  final TextEditingController name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => ValueListenableBuilder(
+        valueListenable: name,
+        builder: (context, value, _) {
+          final matches = ref.read(dishMatcherProvider).byName(value.text, ref.watch(activeRecipesProvider));
+          if (matches.isEmpty) return const SizedBox.shrink();
+          return Column(children: [
+            for (final r in matches.take(2))
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.lightbulb_outline_rounded, color: AppColors.gold),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Ya existe "${r.name}" (${ref.watch(preparationsProvider(r.id)).length} '
+                      'forma${ref.watch(preparationsProvider(r.id)).length == 1 ? '' : 's'} de prepararlo). '
+                      '¿Es el mismo plato?',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.pushReplacement('/version/${r.mainVersionId}/derive'),
+                    child: const Text('Crear mi versión'),
+                  ),
+                ]),
+              ),
+          ]);
+        },
       );
 }
