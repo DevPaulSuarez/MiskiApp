@@ -58,12 +58,7 @@ class VersionIngredient {
   final String note;
   final PurchaseInfo? purchase;
 
-  VersionIngredient copyWith({
-    double? quantity,
-    MeasureUnit? unit,
-    String? note,
-    PurchaseInfo? purchase,
-  }) =>
+  VersionIngredient copyWith({double? quantity, MeasureUnit? unit, String? note, PurchaseInfo? purchase}) =>
       VersionIngredient(
         ingredientId: ingredientId,
         quantity: quantity ?? this.quantity,
@@ -134,14 +129,14 @@ class Recipe {
   final RecipeStatus status;
 
   Recipe copyWith({String? mainVersionId, RecipeStatus? status}) => Recipe(
-        id: id,
-        name: name,
-        description: description,
-        imageUrl: imageUrl,
-        categoryId: categoryId,
-        authorId: authorId,
-        createdAt: createdAt,
-        mainVersionId: mainVersionId ?? this.mainVersionId,
-        status: status ?? this.status,
-      );
+    id: id,
+    name: name,
+    description: description,
+    imageUrl: imageUrl,
+    categoryId: categoryId,
+    authorId: authorId,
+    createdAt: createdAt,
+    mainVersionId: mainVersionId ?? this.mainVersionId,
+    status: status ?? this.status,
+  );
 }

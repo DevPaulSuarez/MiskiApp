@@ -38,20 +38,24 @@ class _RateScreenState extends ConsumerState<RateScreen> {
       showSuccess(context, 'Ya calificaste esta invitación');
       return;
     }
-    ref.read(ratingsProvider.notifier).add(Rating(
-          id: newId('ra'),
-          userId: ref.read(currentUserIdProvider),
-          recipeId: version.recipeId,
-          versionId: version.id,
-          invitationId: invId,
-          stars: _stars,
-          flavor: _flavor,
-          presentation: _presentation,
-          ease: _ease,
-          value: _value,
-          comment: _comment.text.trim(),
-          createdAt: DateTime.now(),
-        ));
+    ref
+        .read(ratingsProvider.notifier)
+        .add(
+          Rating(
+            id: newId('ra'),
+            userId: ref.read(currentUserIdProvider),
+            recipeId: version.recipeId,
+            versionId: version.id,
+            invitationId: invId,
+            stars: _stars,
+            flavor: _flavor,
+            presentation: _presentation,
+            ease: _ease,
+            value: _value,
+            comment: _comment.text.trim(),
+            createdAt: DateTime.now(),
+          ),
+        );
     if (_comment.text.trim().isNotEmpty) {
       ref.read(commentsProvider.notifier).add(version.id, _comment.text.trim());
     }
@@ -68,12 +72,16 @@ class _RateScreenState extends ConsumerState<RateScreen> {
     final recipe = ref.watch(recipeByIdProvider(version.recipeId))!;
 
     Widget criterion(String label, int value, ValueChanged<int> onChanged) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(children: [
-            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
-            StarInput(value: value, onChanged: onChanged, size: 26),
-          ]),
-        );
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+          StarInput(value: value, onChanged: onChanged, size: 26),
+        ],
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Calificar')),
@@ -83,26 +91,34 @@ class _RateScreenState extends ConsumerState<RateScreen> {
           RecipeImage(url: recipe.imageUrl, height: 160),
           const SizedBox(height: 12),
           Text(recipe.name, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
-          Text('V${version.number} · ${version.title}', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+          Text(
+            'V${version.number} · ${version.title}',
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 20),
-          Center(child: StarInput(value: _stars, onChanged: (v) => setState(() => _stars = v), size: 46)),
+          Center(
+            child: StarInput(value: _stars, onChanged: (v) => setState(() => _stars = v), size: 46),
+          ),
           const SizedBox(height: 4),
           Center(
             child: Text(
               const ['Toca para calificar', 'No me gustó', 'Regular', 'Bueno', 'Muy bueno', '¡Excelente!'][_stars],
-              style: const TextStyle(color: AppColors.wine, fontWeight: FontWeight.w700),
+              style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 16),
           Card(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(children: [
-                criterion('Sabor', _flavor, (v) => setState(() => _flavor = v)),
-                criterion('Presentación', _presentation, (v) => setState(() => _presentation = v)),
-                criterion('Facilidad', _ease, (v) => setState(() => _ease = v)),
-                criterion('Costo / calidad', _value, (v) => setState(() => _value = v)),
-              ]),
+              child: Column(
+                children: [
+                  criterion('Sabor', _flavor, (v) => setState(() => _flavor = v)),
+                  criterion('Presentación', _presentation, (v) => setState(() => _presentation = v)),
+                  criterion('Facilidad', _ease, (v) => setState(() => _ease = v)),
+                  criterion('Costo / calidad', _value, (v) => setState(() => _value = v)),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -117,10 +133,7 @@ class _RateScreenState extends ConsumerState<RateScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-          child: FilledButton(
-            onPressed: _stars == 0 ? null : _submit,
-            child: const Text('Enviar valoración'),
-          ),
+          child: FilledButton(onPressed: _stars == 0 ? null : _submit, child: const Text('Enviar valoración')),
         ),
       ),
     );

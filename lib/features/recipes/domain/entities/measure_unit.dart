@@ -20,8 +20,7 @@ enum MeasureUnit {
 
   bool isCompatibleWith(MeasureUnit other) => dimension == other.dimension;
 
-  Iterable<MeasureUnit> get compatibleUnits =>
-      MeasureUnit.values.where(isCompatibleWith);
+  Iterable<MeasureUnit> get compatibleUnits => MeasureUnit.values.where(isCompatibleWith);
 
   double convert(double quantity, MeasureUnit to) {
     if (!isCompatibleWith(to)) {

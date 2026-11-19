@@ -16,7 +16,7 @@ class NotificationsAction extends ConsumerWidget {
       onPressed: () => context.push('/notifications'),
       icon: Badge(
         isLabelVisible: unread > 0,
-        backgroundColor: AppColors.wine,
+        backgroundColor: AppColors.danger,
         label: Text('$unread'),
         child: const Icon(Icons.notifications_none_rounded),
       ),

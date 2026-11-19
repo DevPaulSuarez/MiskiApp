@@ -7,13 +7,12 @@ import '../../../social/presentation/providers/social_providers.dart';
 
 const maxFavoriteFoods = 8;
 
-Future<void> showFavoriteFoodsSheet(BuildContext context, WidgetRef ref, AppUser user) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => _FavoriteFoodsSheet(user: user),
-    );
+Future<void> showFavoriteFoodsSheet(BuildContext context, WidgetRef ref, AppUser user) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (_) => _FavoriteFoodsSheet(user: user),
+);
 
 class _FavoriteFoodsSheet extends ConsumerStatefulWidget {
   const _FavoriteFoodsSheet({required this.user});
@@ -55,7 +54,7 @@ class _FavoriteFoodsSheetState extends ConsumerState<_FavoriteFoodsSheet> {
         children: [
           Text('Mis comidas favoritas', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Tus amigos las verán en tu perfil para sorprenderte en tu cumpleaños.',
             style: TextStyle(color: AppColors.textMuted),
           ),
@@ -72,13 +71,13 @@ class _FavoriteFoodsSheetState extends ConsumerState<_FavoriteFoodsSheet> {
             ),
           ),
           const SizedBox(height: 12),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final f in _foods)
-              InputChip(
-                label: Text(f),
-                onDeleted: () => setState(() => _foods.remove(f)),
-              ),
-          ]),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final f in _foods) InputChip(label: Text(f), onDeleted: () => setState(() => _foods.remove(f))),
+            ],
+          ),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,

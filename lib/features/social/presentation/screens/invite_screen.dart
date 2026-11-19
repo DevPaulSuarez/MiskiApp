@@ -28,13 +28,17 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
 
   void _send() {
     final version = ref.read(versionByIdProvider(widget.versionId))!;
-    ref.read(invitationsProvider.notifier).send(
+    ref
+        .read(invitationsProvider.notifier)
+        .send(
           recipeId: version.recipeId,
           versionId: version.id,
           toUserIds: _selected.toList(),
           message: _message.text.trim(),
         );
-    ref.read(notificationsProvider.notifier).push(
+    ref
+        .read(notificationsProvider.notifier)
+        .push(
           'Invitaciones enviadas',
           'Invitaste a ${_selected.length} persona${_selected.length > 1 ? 's' : ''} a probar la V${version.number}.',
           route: '/invitations',
@@ -69,7 +73,7 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
               child: Card(
                 child: CheckboxListTile(
                   value: _selected.contains(u.id),
-                  activeColor: AppColors.wine,
+                  activeColor: AppColors.accent,
                   onChanged: (v) => setState(() => v! ? _selected.add(u.id) : _selected.remove(u.id)),
                   secondary: UserAvatar(initials: u.initials),
                   title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -82,7 +86,10 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
             controller: _message,
             maxLines: 3,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(labelText: 'Mensaje (opcional)', hintText: '¡Ven a probar mi ceviche el sábado!'),
+            decoration: const InputDecoration(
+              labelText: 'Mensaje (opcional)',
+              hintText: '¡Ven a probar mi ceviche el sábado!',
+            ),
           ),
         ],
       ),

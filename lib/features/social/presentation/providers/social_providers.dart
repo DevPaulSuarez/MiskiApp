@@ -38,16 +38,16 @@ class NotificationsNotifier extends Notifier<List<AppNotification>> {
 
   /// Sends to [toUserId], or to the current user when omitted.
   void push(String title, String body, {String? route, String? toUserId}) => state = [
-        AppNotification(
-          id: newId('n'),
-          userId: toUserId ?? ref.read(currentUserIdProvider),
-          title: title,
-          body: body,
-          createdAt: DateTime.now(),
-          route: route,
-        ),
-        ...state,
-      ];
+    AppNotification(
+      id: newId('n'),
+      userId: toUserId ?? ref.read(currentUserIdProvider),
+      title: title,
+      body: body,
+      createdAt: DateTime.now(),
+      route: route,
+    ),
+    ...state,
+  ];
 
   void markRead(String id) => state = [for (final n in state) n.id == id ? n.markRead() : n];
 
@@ -58,8 +58,7 @@ class NotificationsNotifier extends Notifier<List<AppNotification>> {
 }
 
 /// All notifications in the system (every recipient). Screens should use [myNotificationsProvider].
-final notificationsProvider =
-    NotifierProvider<NotificationsNotifier, List<AppNotification>>(NotificationsNotifier.new);
+final notificationsProvider = NotifierProvider<NotificationsNotifier, List<AppNotification>>(NotificationsNotifier.new);
 
 final myNotificationsProvider = Provider((ref) {
   final me = ref.watch(currentUserIdProvider);
@@ -137,15 +136,15 @@ class CommentsNotifier extends Notifier<List<Comment>> {
   List<Comment> build() => [...MockData.comments];
 
   void add(String versionId, String text) => state = [
-        ...state,
-        Comment(
-          id: newId('co'),
-          userId: ref.read(currentUserIdProvider),
-          versionId: versionId,
-          text: text,
-          createdAt: DateTime.now(),
-        ),
-      ];
+    ...state,
+    Comment(
+      id: newId('co'),
+      userId: ref.read(currentUserIdProvider),
+      versionId: versionId,
+      text: text,
+      createdAt: DateTime.now(),
+    ),
+  ];
 }
 
 final commentsProvider = NotifierProvider<CommentsNotifier, List<Comment>>(CommentsNotifier.new);

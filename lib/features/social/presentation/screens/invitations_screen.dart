@@ -12,11 +12,11 @@ import '../providers/social_providers.dart';
 import '../widgets/notifications_action.dart';
 
 Color invitationColor(InvitationStatus s) => switch (s) {
-      InvitationStatus.pending => AppColors.gold,
-      InvitationStatus.accepted => AppColors.forestSoft,
-      InvitationStatus.rejected => AppColors.wine,
-      InvitationStatus.completed => AppColors.forest,
-    };
+  InvitationStatus.pending => AppColors.gold,
+  InvitationStatus.accepted => AppColors.success,
+  InvitationStatus.rejected => AppColors.danger,
+  InvitationStatus.completed => AppColors.textMuted,
+};
 
 class InvitationsScreen extends ConsumerWidget {
   const InvitationsScreen({super.key});
@@ -34,15 +34,19 @@ class InvitationsScreen extends ConsumerWidget {
         appBar: AppBar(
           title: const Text('Invitaciones'),
           actions: const [NotificationsAction()],
-          bottom: TabBar(tabs: [
-            Tab(text: 'Recibidas (${received.length})'),
-            Tab(text: 'Enviadas (${sent.length})'),
-          ]),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Recibidas (${received.length})'),
+              Tab(text: 'Enviadas (${sent.length})'),
+            ],
+          ),
         ),
-        body: TabBarView(children: [
-          _InvitationList(items: received, received: true),
-          _InvitationList(items: sent, received: false),
-        ]),
+        body: TabBarView(
+          children: [
+            _InvitationList(items: received, received: true),
+            _InvitationList(items: sent, received: false),
+          ],
+        ),
       ),
     );
   }
@@ -93,68 +97,82 @@ class _InvitationCard extends ConsumerWidget {
         onTap: () => context.push('/version/${inv.versionId}'),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              SizedBox(width: 56, height: 56, child: RecipeImage(url: recipe?.imageUrl ?? '', radius: AppTheme.radiusS)),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(recipe?.name ?? '—', style: const TextStyle(fontWeight: FontWeight.w800)),
-                  Text('V${version?.number} · ${version?.title}', style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${received ? 'De' : 'Para'} ${other.name} · ${Fmt.relative(inv.createdAt)}',
-                    style: Theme.of(context).textTheme.bodySmall,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: RecipeImage(url: recipe?.imageUrl ?? '', radius: AppTheme.radiusS),
                   ),
-                ]),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(recipe?.name ?? '—', style: const TextStyle(fontWeight: FontWeight.w800)),
+                        Text('V${version?.number} · ${version?.title}', style: Theme.of(context).textTheme.bodySmall),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${received ? 'De' : 'Para'} ${other.name} · ${Fmt.relative(inv.createdAt)}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  StatusBadge(inv.status.label, color: invitationColor(inv.status)),
+                ],
               ),
-              StatusBadge(inv.status.label, color: invitationColor(inv.status)),
-            ]),
-            if (inv.message.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: AppColors.beigeSoft, borderRadius: BorderRadius.circular(10)),
-                child: Text('“${inv.message}”', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 13)),
-              ),
-            ],
-            if (received && inv.status == InvitationStatus.pending) ...[
-              const SizedBox(height: 12),
-              Row(children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      notifier.setStatus(inv.id, InvitationStatus.rejected);
-                      showSuccess(context, 'Invitación rechazada');
-                    },
-                    child: const Text('Rechazar'),
+              if (inv.message.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: AppColors.surfaceHigh, borderRadius: BorderRadius.circular(10)),
+                  child: Text('“${inv.message}”', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 13)),
+                ),
+              ],
+              if (received && inv.status == InvitationStatus.pending) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          notifier.setStatus(inv.id, InvitationStatus.rejected);
+                          showSuccess(context, 'Invitación rechazada');
+                        },
+                        child: const Text('Rechazar'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          notifier.setStatus(inv.id, InvitationStatus.accepted);
+                          showSuccess(context, '¡Aceptada! Cuando lo pruebes podrás calificarlo.');
+                        },
+                        child: const Text('Aceptar'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (received && inv.status == InvitationStatus.accepted && !alreadyRated) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => context.push('/version/${inv.versionId}/rate?inv=${inv.id}'),
+                    icon: const Icon(Icons.star_rounded),
+                    label: const Text('Ya lo probé · Calificar'),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      notifier.setStatus(inv.id, InvitationStatus.accepted);
-                      showSuccess(context, '¡Aceptada! Cuando lo pruebes podrás calificarlo.');
-                    },
-                    child: const Text('Aceptar'),
-                  ),
-                ),
-              ]),
+              ],
             ],
-            if (received && inv.status == InvitationStatus.accepted && !alreadyRated) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => context.push('/version/${inv.versionId}/rate?inv=${inv.id}'),
-                  icon: const Icon(Icons.star_rounded),
-                  label: const Text('Ya lo probé · Calificar'),
-                ),
-              ),
-            ],
-          ]),
+          ),
         ),
       ),
     );

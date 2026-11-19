@@ -23,7 +23,11 @@ class NotificationsScreen extends ConsumerWidget {
         ],
       ),
       body: items.isEmpty
-          ? const EmptyState(icon: Icons.notifications_none_rounded, title: 'Todo al día', message: 'No tienes notificaciones.')
+          ? const EmptyState(
+              icon: Icons.notifications_none_rounded,
+              title: 'Todo al día',
+              message: 'No tienes notificaciones.',
+            )
           : ListView.separated(
               itemCount: items.length,
               separatorBuilder: (_, _) => const Divider(),
@@ -32,8 +36,12 @@ class NotificationsScreen extends ConsumerWidget {
                 return ListTile(
                   tileColor: n.read ? null : AppColors.gold.withValues(alpha: 0.08),
                   leading: CircleAvatar(
-                    backgroundColor: n.read ? AppColors.beigeSoft : AppColors.wine,
-                    child: Icon(Icons.notifications_rounded, color: n.read ? AppColors.forest : Colors.white, size: 20),
+                    backgroundColor: n.read ? AppColors.surfaceHigh : AppColors.accent,
+                    child: Icon(
+                      Icons.notifications_rounded,
+                      color: n.read ? AppColors.textMuted : AppColors.onAccent,
+                      size: 20,
+                    ),
                   ),
                   title: Text(n.title, style: TextStyle(fontWeight: n.read ? FontWeight.w600 : FontWeight.w800)),
                   subtitle: Text('${n.body}\n${Fmt.relative(n.createdAt)}'),

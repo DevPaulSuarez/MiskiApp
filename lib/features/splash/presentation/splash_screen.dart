@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 1800), () {
-      if (mounted) context.go('/');
+      if (mounted) context.go('/recipes');
     });
   }
 
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final fade = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     return Scaffold(
-      backgroundColor: AppColors.forest,
+      backgroundColor: AppColors.background,
       body: Center(
         child: FadeTransition(
           opacity: fade,
@@ -43,17 +43,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 Container(
                   width: 96,
                   height: 96,
-                  decoration: BoxDecoration(
-                    color: AppColors.wine,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.gold, width: 2),
-                  ),
-                  child: const Icon(Icons.restaurant_menu_rounded, color: AppColors.beige, size: 48),
+                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(28)),
+                  child: Icon(Icons.restaurant_menu_rounded, color: AppColors.accent, size: 48),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Miski',
-                  style: TextStyle(color: AppColors.beige, fontSize: 40, fontWeight: FontWeight.w900, letterSpacing: 1),
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 40,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 const Text(

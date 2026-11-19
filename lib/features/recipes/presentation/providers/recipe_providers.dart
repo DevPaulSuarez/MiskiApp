@@ -42,9 +42,7 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
   void toggleArchive(String recipeId) {
     _requireAuthor(recipeId);
     final r = byId(recipeId);
-    save(r.copyWith(
-      status: r.status == RecipeStatus.active ? RecipeStatus.archived : RecipeStatus.active,
-    ));
+    save(r.copyWith(status: r.status == RecipeStatus.active ? RecipeStatus.archived : RecipeStatus.active));
   }
 
   void _requireAuthor(String recipeId) {
@@ -90,8 +88,9 @@ final versionByIdProvider = Provider.family<RecipeVersion?, String>(
 );
 
 final versionsOfRecipeProvider = Provider.family<List<RecipeVersion>, String>(
-  (ref, recipeId) => ref.watch(versionsProvider).where((v) => v.recipeId == recipeId).toList()
-    ..sort((a, b) => a.number.compareTo(b.number)),
+  (ref, recipeId) =>
+      ref.watch(versionsProvider).where((v) => v.recipeId == recipeId).toList()
+        ..sort((a, b) => a.number.compareTo(b.number)),
 );
 
 // --- Catalog ---
@@ -123,9 +122,8 @@ class FavoritesNotifier extends Notifier<Set<String>> {
   @override
   Set<String> build() => {...MockData.favoriteRecipeIds};
 
-  void toggle(String recipeId) => state = state.contains(recipeId)
-      ? ({...state}..remove(recipeId))
-      : {...state, recipeId};
+  void toggle(String recipeId) =>
+      state = state.contains(recipeId) ? ({...state}..remove(recipeId)) : {...state, recipeId};
 }
 
 final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(FavoritesNotifier.new);

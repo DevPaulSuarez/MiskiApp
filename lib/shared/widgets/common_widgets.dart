@@ -23,7 +23,8 @@ class RecipeImage extends StatelessWidget {
             : Image.network(
                 url,
                 fit: BoxFit.cover,
-                loadingBuilder: (_, child, progress) => progress == null ? child : const _ImagePlaceholder(loading: true),
+                loadingBuilder: (_, child, progress) =>
+                    progress == null ? child : const _ImagePlaceholder(loading: true),
                 errorBuilder: (_, _, _) => const _ImagePlaceholder(),
               ),
       ),
@@ -37,22 +38,18 @@ class _ImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.forest, AppColors.forestSoft],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: loading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.gold),
-              )
-            : const Icon(Icons.restaurant_rounded, color: AppColors.gold, size: 40),
-      );
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [AppColors.surface, AppColors.surfaceHigh],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+    ),
+    alignment: Alignment.center,
+    child: loading
+        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.gold))
+        : const Icon(Icons.restaurant_rounded, color: AppColors.gold, size: 40),
+  );
 }
 
 class StarRating extends StatelessWidget {
@@ -62,16 +59,16 @@ class StarRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(5, (i) {
-          final icon = value >= i + 1
-              ? Icons.star_rounded
-              : value >= i + 0.5
-                  ? Icons.star_half_rounded
-                  : Icons.star_outline_rounded;
-          return Icon(icon, size: size, color: AppColors.gold);
-        }),
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(5, (i) {
+      final icon = value >= i + 1
+          ? Icons.star_rounded
+          : value >= i + 0.5
+          ? Icons.star_half_rounded
+          : Icons.star_outline_rounded;
+      return Icon(icon, size: size, color: AppColors.gold);
+    }),
+  );
 }
 
 class StarInput extends StatelessWidget {
@@ -82,23 +79,19 @@ class StarInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          5,
-          (i) => GestureDetector(
-            onTap: () => onChanged(i + 1),
-            child: AnimatedScale(
-              scale: value == i + 1 ? 1.15 : 1,
-              duration: const Duration(milliseconds: 150),
-              child: Icon(
-                i < value ? Icons.star_rounded : Icons.star_outline_rounded,
-                size: size,
-                color: AppColors.gold,
-              ),
-            ),
-          ),
+    mainAxisSize: MainAxisSize.min,
+    children: List.generate(
+      5,
+      (i) => GestureDetector(
+        onTap: () => onChanged(i + 1),
+        child: AnimatedScale(
+          scale: value == i + 1 ? 1.15 : 1,
+          duration: const Duration(milliseconds: 150),
+          child: Icon(i < value ? Icons.star_rounded : Icons.star_outline_rounded, size: size, color: AppColors.gold),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class SectionHeader extends StatelessWidget {
@@ -109,19 +102,19 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 12, 10),
-        child: Row(
-          children: [
-            Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
-            if (action != null)
-              TextButton(
-                onPressed: onAction,
-                style: TextButton.styleFrom(foregroundColor: AppColors.wine),
-                child: Text(action!, style: const TextStyle(fontWeight: FontWeight.w700)),
-              ),
-          ],
-        ),
-      );
+    padding: const EdgeInsets.fromLTRB(20, 20, 12, 10),
+    child: Row(
+      children: [
+        Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
+        if (action != null)
+          TextButton(
+            onPressed: onAction,
+            style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+            child: Text(action!, style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
+      ],
+    ),
+  );
 }
 
 class EmptyState extends StatelessWidget {
@@ -133,25 +126,25 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(22),
-                decoration: const BoxDecoration(color: AppColors.beigeSoft, shape: BoxShape.circle),
-                child: Icon(icon, size: 40, color: AppColors.forest),
-              ),
-              const SizedBox(height: 16),
-              Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
-              const SizedBox(height: 6),
-              Text(message, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
-              if (action != null) ...[const SizedBox(height: 16), action!],
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(color: AppColors.surfaceHigh, shape: BoxShape.circle),
+            child: Icon(icon, size: 40, color: AppColors.textMuted),
           ),
-        ),
-      );
+          const SizedBox(height: 16),
+          Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+          const SizedBox(height: 6),
+          Text(message, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+          if (action != null) ...[const SizedBox(height: 16), action!],
+        ],
+      ),
+    ),
+  );
 }
 
 class UserAvatar extends StatelessWidget {
@@ -161,13 +154,13 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CircleAvatar(
-        radius: radius,
-        backgroundColor: AppColors.forest,
-        child: Text(
-          initials,
-          style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w800, fontSize: radius * 0.75),
-        ),
-      );
+    radius: radius,
+    backgroundColor: AppColors.surfaceHigh,
+    child: Text(
+      initials,
+      style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w800, fontSize: radius * 0.75),
+    ),
+  );
 }
 
 class InfoPill extends StatelessWidget {
@@ -178,27 +171,27 @@ class InfoPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: dark ? Colors.black.withValues(alpha: 0.45) : AppColors.beigeSoft,
-          borderRadius: BorderRadius.circular(20),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: dark ? Colors.black.withValues(alpha: 0.45) : AppColors.surfaceHigh,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: dark ? AppColors.beige : AppColors.textMuted),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: dark ? Colors.white : AppColors.textPrimary,
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: dark ? AppColors.beige : AppColors.forest),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: dark ? Colors.white : AppColors.forest,
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }
 
 class StatusBadge extends StatelessWidget {
@@ -208,25 +201,29 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
+    child: Text(
+      label,
+      style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12),
+    ),
+  );
 }
 
 void showSuccess(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      content: Row(children: [
-        const Icon(Icons.check_circle_rounded, color: AppColors.gold),
-        const SizedBox(width: 10),
-        Expanded(child: Text(message)),
-      ]),
-    ));
+    ..showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_rounded, color: AppColors.gold),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
+    );
 }
 
 Future<bool> confirmDialog(BuildContext context, String title, String message, {String confirm = 'Confirmar'}) async {

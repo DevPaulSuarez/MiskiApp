@@ -15,7 +15,7 @@ class DashboardShortcuts extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final meId = ref.watch(currentUserIdProvider);
-    final recipeCount = ref.watch(activeRecipesProvider).length;
+    final ownCount = ref.watch(activeRecipesProvider).where((r) => r.authorId == meId).length;
     final favoriteCount = ref.watch(favoritesProvider).length;
     final pendingInvites = ref
         .watch(invitationsProvider)
@@ -25,20 +25,15 @@ class DashboardShortcuts extends ConsumerWidget {
     final cards = [
       _ShortcutCard(
         icon: Icons.menu_book_rounded,
-        title: 'Recetario',
-        subtitle: '$recipeCount receta${recipeCount == 1 ? '' : 's'}',
-        background: AppColors.forest,
-        foreground: Colors.white,
-        accent: AppColors.gold,
-        onTap: () => context.go('/recipes'),
+        title: 'Mi recetario',
+        subtitle: '$ownCount receta${ownCount == 1 ? '' : 's'} propia${ownCount == 1 ? '' : 's'}',
+        onTap: () => context.push('/my-recipes'),
       ),
       _ShortcutCard(
         icon: Icons.add_circle_rounded,
         title: 'Nueva receta',
         subtitle: 'Crea desde cero',
-        background: AppColors.wine,
-        foreground: Colors.white,
-        accent: AppColors.beige,
+        highlighted: true,
         onTap: () => context.push('/recipe-new'),
       ),
       _ShortcutCard(
@@ -78,9 +73,7 @@ class _ShortcutCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    this.background = AppColors.surface,
-    this.foreground = AppColors.textPrimary,
-    this.accent = AppColors.wine,
+    this.highlighted = false,
     this.badge = 0,
   });
 
@@ -88,22 +81,22 @@ class _ShortcutCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  final Color background;
-  final Color foreground;
-  final Color accent;
   final int badge;
 
-  bool get _isLight => background == AppColors.surface;
+  /// The one card painted with the accent color (the main action).
+  final bool highlighted;
+
+  bool get _isLight => !highlighted;
+  Color get background => highlighted ? AppColors.accent : AppColors.surface;
+  Color get foreground => highlighted ? AppColors.onAccent : AppColors.textPrimary;
+  Color get accent => highlighted ? AppColors.onAccent : AppColors.accent;
 
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(AppTheme.radiusM);
     return Material(
       color: background,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: _isLight ? const BorderSide(color: AppColors.beige) : BorderSide.none,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide.none),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -118,17 +111,14 @@ class _ShortcutCard extends StatelessWidget {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: _isLight ? AppColors.beigeSoft : Colors.white.withValues(alpha: 0.12),
+                      color: _isLight ? AppColors.surfaceHigh : AppColors.onAccent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppTheme.radiusS),
                     ),
                     child: Icon(icon, color: accent, size: 22),
                   ),
                   const Spacer(),
                   if (badge > 0)
-                    Badge(
-                      label: Text('$badge'),
-                      backgroundColor: AppColors.wine,
-                    )
+                    Badge(label: Text('$badge'), backgroundColor: AppColors.danger)
                   else
                     Icon(Icons.arrow_forward_rounded, size: 18, color: foreground.withValues(alpha: 0.6)),
                 ],

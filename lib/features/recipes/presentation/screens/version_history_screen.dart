@@ -42,13 +42,13 @@ class _VersionHistoryScreenState extends ConsumerState<VersionHistoryScreen> {
   }
 
   void _toggle(String id) => setState(() {
-        if (_selected.contains(id)) {
-          _selected.remove(id);
-        } else {
-          if (_selected.length == 2) _selected.removeAt(0);
-          _selected.add(id);
-        }
-      });
+    if (_selected.contains(id)) {
+      _selected.remove(id);
+    } else {
+      if (_selected.length == 2) _selected.removeAt(0);
+      _selected.add(id);
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +97,7 @@ class _VersionHistoryScreenState extends ConsumerState<VersionHistoryScreen> {
       ),
       floatingActionButton: _selected.length == 2
           ? FloatingActionButton.extended(
-              onPressed: () => context.push(
-                '/recipe/${widget.recipeId}/compare?a=${_selected[0]}&b=${_selected[1]}',
-              ),
+              onPressed: () => context.push('/recipe/${widget.recipeId}/compare?a=${_selected[0]}&b=${_selected[1]}'),
               icon: const Icon(Icons.compare_arrows_rounded),
               label: const Text('Comparar', style: TextStyle(fontWeight: FontWeight.w700)),
             )
@@ -134,56 +132,73 @@ class _VersionTile extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: selected ? AppColors.wine : AppColors.beigeSoft, width: selected ? 2 : 1),
+        border: Border.all(color: selected ? AppColors.accent : Colors.transparent, width: selected ? 2 : 1),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => context.push('/version/${version.id}'),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
-          child: Row(children: [
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Text('V${version.number}', style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.wine, fontSize: 16)),
-                  const SizedBox(width: 8),
-                  if (isMain) const StatusBadge('Principal', color: AppColors.gold),
-                ]),
-                const SizedBox(height: 2),
-                Text(version.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 4),
-                Row(children: [
-                  UserAvatar(initials: author.initials, radius: 10),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      '${versionOwnerLabel(author, ref.watch(currentUserIdProvider))} · ${Fmt.date(version.createdAt)}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'V${version.number}',
+                          style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.accent, fontSize: 16),
+                        ),
+                        const SizedBox(width: 8),
+                        if (isMain) const StatusBadge('Principal', color: AppColors.gold),
+                      ],
                     ),
-                  ),
-                ]),
-                if (parent != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      ref.watch(basedOnLabelProvider(version.id)) ?? 'Derivada de V${parent.number}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                    const SizedBox(height: 2),
+                    Text(version.title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        UserAvatar(initials: author.initials, radius: 10),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            '${versionOwnerLabel(author, ref.watch(currentUserIdProvider))} · ${Fmt.date(version.createdAt)}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                const SizedBox(height: 6),
-                Wrap(spacing: 6, runSpacing: 6, children: [
-                  InfoPill(icon: Icons.star_rounded, label: rating.count == 0 ? 'Sin valorar' : '${rating.average.toStringAsFixed(1)} (${rating.count})'),
-                  InfoPill(icon: Icons.payments_outlined, label: '${Fmt.money(costPerServing)}/pers.'),
-                ]),
-              ]),
-            ),
-            Checkbox(
-              value: selected,
-              activeColor: AppColors.wine,
-              onChanged: (_) => onSelect(),
-            ),
-          ]),
+                    if (parent != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          ref.watch(basedOnLabelProvider(version.id)) ?? 'Derivada de V${parent.number}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        InfoPill(
+                          icon: Icons.star_rounded,
+                          label: rating.count == 0
+                              ? 'Sin valorar'
+                              : '${rating.average.toStringAsFixed(1)} (${rating.count})',
+                        ),
+                        InfoPill(icon: Icons.payments_outlined, label: '${Fmt.money(costPerServing)}/pers.'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Checkbox(value: selected, activeColor: AppColors.accent, onChanged: (_) => onSelect()),
+            ],
+          ),
         ),
       ),
     );

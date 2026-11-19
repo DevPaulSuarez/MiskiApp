@@ -37,12 +37,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final ingredients = ref.watch(ingredientsProvider);
     final categories = ref.watch(categoriesProvider);
 
-    bool matchesIngredient(String recipeId, String term) => versions.where((v) => v.recipeId == recipeId).any(
-          (v) => v.ingredients.any((li) =>
-              ingredients.where((i) => i.id == li.ingredientId).any((i) => i.name.toLowerCase().contains(term))),
+    bool matchesIngredient(String recipeId, String term) => versions
+        .where((v) => v.recipeId == recipeId)
+        .any(
+          (v) => v.ingredients.any(
+            (li) => ingredients.where((i) => i.id == li.ingredientId).any((i) => i.name.toLowerCase().contains(term)),
+          ),
         );
     bool matches(String recipeId, String name, String description, String term) =>
-        name.toLowerCase().contains(term) || description.toLowerCase().contains(term) || matchesIngredient(recipeId, term);
+        name.toLowerCase().contains(term) ||
+        description.toLowerCase().contains(term) ||
+        matchesIngredient(recipeId, term);
 
     final pool = ref.watch(activeRecipesProvider).where((r) => _category == null || r.categoryId == _category).toList();
     final results = q.isEmpty ? pool : pool.where((r) => matches(r.id, r.name, r.description, q)).toList();
@@ -113,7 +118,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ),
                         ),
                       for (final r in shown)
-                        Padding(padding: const EdgeInsets.only(bottom: 10), child: RecipeListTile(recipe: r)),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: RecipeListTile(recipe: r),
+                        ),
                       if (results.isEmpty) Center(child: _createButton()),
                     ],
                   ),
@@ -124,8 +132,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _createButton() => FilledButton.icon(
-        onPressed: () => context.push(Uri(path: '/recipe-new', queryParameters: {'name': _query.trim()}).toString()),
-        icon: const Icon(Icons.add_rounded),
-        label: Text('Crear "${_query.trim()}"'),
-      );
+    onPressed: () => context.push(Uri(path: '/recipe-new', queryParameters: {'name': _query.trim()}).toString()),
+    icon: const Icon(Icons.add_rounded),
+    label: Text('Crear "${_query.trim()}"'),
+  );
 }

@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/common_widgets.dart';
+import '../../../shared/widgets/theme_toggle.dart';
 import '../../recipes/presentation/providers/preparation_providers.dart';
 import '../../recipes/presentation/providers/recipe_providers.dart';
 import '../../recipes/presentation/screens/cookbook_screen.dart';
@@ -81,9 +82,9 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       for (final f in user.favoriteFoods)
                         ActionChip(
-                          avatar: const Icon(Icons.restaurant_rounded, size: 16, color: AppColors.wine),
+                          avatar: Icon(Icons.restaurant_rounded, size: 16, color: AppColors.accent),
                           label: Text(f, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          backgroundColor: AppColors.beigeSoft,
+                          backgroundColor: AppColors.surfaceHigh,
                           side: BorderSide.none,
                           tooltip: 'Buscar recetas de $f',
                           onPressed: () => context.push(Uri(path: '/search', queryParameters: {'q': f}).toString()),
@@ -105,7 +106,7 @@ class ProfileScreen extends ConsumerWidget {
                         ActionChip(
                           label: Text('${c.emoji} ${c.name}'),
                           onPressed: () {
-                            ref.read(cookbookCategoryProvider.notifier).select(c.id);
+                            ref.read(cookbookFiltersProvider.notifier).setCategory(c.id);
                             context.go('/recipes');
                           },
                         ),
@@ -138,15 +139,17 @@ class ProfileScreen extends ConsumerWidget {
                 final recipe = recipeById[v.recipeId]!;
                 final author = ref.watch(userByIdProvider(recipe.authorId));
                 return ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: AppColors.beigeSoft,
-                    child: Icon(Icons.account_tree_rounded, color: AppColors.wine),
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.surfaceHigh,
+                    child: Icon(Icons.account_tree_rounded, color: AppColors.accent),
                   ),
                   title: Text('${recipe.name} · V${v.number}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text([
-                  author.id == meId ? 'Tu plato' : 'Plato de ${author.firstName}',
-                  ?ref.watch(basedOnLabelProvider(v.id)),
-                ].join(' · ')),
+                  subtitle: Text(
+                    [
+                      author.id == meId ? 'Tu plato' : 'Plato de ${author.firstName}',
+                      ?ref.watch(basedOnLabelProvider(v.id)),
+                    ].join(' · '),
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('/version/${v.id}'),
                 );
@@ -168,7 +171,7 @@ class ProfileScreen extends ConsumerWidget {
                   trailing: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Nota', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                      Text('Nota', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
                       Text(
                         '${entry.value} ★',
                         style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.gold),
@@ -180,6 +183,7 @@ class ProfileScreen extends ConsumerWidget {
 
           if (isMe) ...[
             const SectionHeader('Ajustes'),
+            const ThemeSwitchTile(),
             const _SettingTile(icon: Icons.lock_outline_rounded, label: 'Privacidad de recetas'),
             const _SettingTile(icon: Icons.notifications_outlined, label: 'Notificaciones'),
             const _SettingTile(icon: Icons.logout_rounded, label: 'Cerrar sesión'),
@@ -205,8 +209,8 @@ class _Header extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(20, top + 24, 20, 24),
-          decoration: const BoxDecoration(
-            color: AppColors.forest,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
             borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppTheme.radiusL)),
           ),
           child: Column(
@@ -219,7 +223,7 @@ class _Header extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 user.name,
-                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.w700),
               ),
               Text(
                 user.handle,
@@ -232,7 +236,7 @@ class _Header extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 user.bio,
-                style: const TextStyle(color: AppColors.beige),
+                style: TextStyle(color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 18),
@@ -244,7 +248,7 @@ class _Header extends StatelessWidget {
           Positioned(
             top: top + 4,
             left: 4,
-            child: const BackButton(color: Colors.white),
+            child: BackButton(color: AppColors.textPrimary),
           ),
       ],
     );
@@ -314,12 +318,12 @@ class _Stat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.w700),
         ),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.beige, fontSize: 12),
+          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
       ],
     ),
@@ -333,7 +337,7 @@ class _SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-    leading: Icon(icon, color: AppColors.forest),
+    leading: Icon(icon, color: AppColors.textMuted),
     title: Text(label),
     trailing: const Icon(Icons.chevron_right_rounded),
     onTap: () => showSuccess(context, 'Disponible cuando conectemos el backend'),

@@ -4,8 +4,7 @@ import '../entities/recipe.dart';
 class ServingCalculator {
   const ServingCalculator();
 
-  double factor({required int originalServings, required int desiredServings}) =>
-      desiredServings / originalServings;
+  double factor({required int originalServings, required int desiredServings}) => desiredServings / originalServings;
 
   double scale(double quantity, double factor) => quantity * factor;
 }
@@ -142,8 +141,14 @@ class VersionComparator {
     final commonInB = b.steps.where(aSteps.contains).toList();
 
     return VersionDiff(
-      added: [for (final e in bMap.entries) if (!aMap.containsKey(e.key)) e.value],
-      removed: [for (final e in aMap.entries) if (!bMap.containsKey(e.key)) e.value],
+      added: [
+        for (final e in bMap.entries)
+          if (!aMap.containsKey(e.key)) e.value,
+      ],
+      removed: [
+        for (final e in aMap.entries)
+          if (!bMap.containsKey(e.key)) e.value,
+      ],
       changed: changed,
       stepsAdded: b.steps.where((s) => !aSteps.contains(s)).toList(),
       stepsRemoved: a.steps.where((s) => !bSteps.contains(s)).toList(),

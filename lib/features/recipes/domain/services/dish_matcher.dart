@@ -47,12 +47,11 @@ class DishMatcher {
 
   /// Most similar active dish by ingredients, if it reaches [threshold].
   /// The returned version is the closest one (the dish's main version on ties).
-  DishMatch? byIngredients(
-    Iterable<String> ingredientIds,
-    List<Recipe> recipes,
-    List<RecipeVersion> versions,
-  ) {
-    final active = {for (final r in recipes) if (r.status == RecipeStatus.active) r.id: r};
+  DishMatch? byIngredients(Iterable<String> ingredientIds, List<Recipe> recipes, List<RecipeVersion> versions) {
+    final active = {
+      for (final r in recipes)
+        if (r.status == RecipeStatus.active) r.id: r,
+    };
     DishMatch? best;
     for (final v in versions) {
       final recipe = active[v.recipeId];
@@ -60,7 +59,8 @@ class DishMatcher {
       final s = ingredientSimilarity(ingredientIds, v.ingredients.map((i) => i.ingredientId));
       if (s < threshold) continue;
       // On ties prefer the dish's main version as the base.
-      final better = best == null ||
+      final better =
+          best == null ||
           s > best.similarity ||
           (s == best.similarity && v.id == recipe.mainVersionId && best.version.id != best.recipe.mainVersionId);
       if (better) {

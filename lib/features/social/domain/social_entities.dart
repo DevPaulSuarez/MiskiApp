@@ -33,14 +33,14 @@ class AppUser {
   }
 
   AppUser copyWith({List<String>? favoriteFoods}) => AppUser(
-        id: id,
-        name: name,
-        handle: handle,
-        bio: bio,
-        birthday: birthday,
-        favoriteCategoryIds: favoriteCategoryIds,
-        favoriteFoods: favoriteFoods ?? this.favoriteFoods,
-      );
+    id: id,
+    name: name,
+    handle: handle,
+    bio: bio,
+    birthday: birthday,
+    favoriteCategoryIds: favoriteCategoryIds,
+    favoriteFoods: favoriteFoods ?? this.favoriteFoods,
+  );
 }
 
 enum InvitationStatus {
@@ -75,15 +75,15 @@ class Invitation {
   final DateTime createdAt;
 
   Invitation withStatus(InvitationStatus s) => Invitation(
-        id: id,
-        recipeId: recipeId,
-        versionId: versionId,
-        fromUserId: fromUserId,
-        toUserId: toUserId,
-        createdAt: createdAt,
-        message: message,
-        status: s,
-      );
+    id: id,
+    recipeId: recipeId,
+    versionId: versionId,
+    fromUserId: fromUserId,
+    toUserId: toUserId,
+    createdAt: createdAt,
+    message: message,
+    status: s,
+  );
 }
 
 class Rating {

@@ -17,63 +17,83 @@ class UpcomingBirthdays extends ConsumerWidget {
     final upcoming = ref.watch(upcomingBirthdaysProvider);
     if (upcoming.isEmpty) return const SizedBox.shrink();
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SectionHeader('Próximos cumpleaños 🎂'),
-      SizedBox(
-        height: 132,
-        child: ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          scrollDirection: Axis.horizontal,
-          itemCount: upcoming.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 12),
-          itemBuilder: (_, i) {
-            final (user, days) = upcoming[i];
-            final when = switch (days) { 0 => '¡Hoy!', 1 => 'Mañana', _ => 'En $days días' };
-            return SizedBox(
-              width: 240,
-              child: Material(
-                color: AppColors.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                  side: const BorderSide(color: AppColors.beige),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => context.push('/user/${user.id}'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        UserAvatar(initials: user.initials),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text(user.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.w800)),
-                            Text('${Fmt.birthday(user.birthday!)} · $when',
-                                style: const TextStyle(fontSize: 12, color: AppColors.wine, fontWeight: FontWeight.w700)),
-                          ]),
-                        ),
-                      ]),
-                      const Spacer(),
-                      Text(
-                        user.favoriteFoods.isEmpty
-                            ? 'Sin comidas favoritas aún'
-                            : 'Le encanta: ${user.favoriteFoods.join(', ')}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionHeader('Próximos cumpleaños 🎂'),
+        SizedBox(
+          height: 132,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: upcoming.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            itemBuilder: (_, i) {
+              final (user, days) = upcoming[i];
+              final when = switch (days) {
+                0 => '¡Hoy!',
+                1 => 'Mañana',
+                _ => 'En $days días',
+              };
+              return SizedBox(
+                width: 240,
+                child: Material(
+                  color: AppColors.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusM)),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => context.push('/user/${user.id}'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              UserAvatar(initials: user.initials),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontWeight: FontWeight.w800),
+                                    ),
+                                    Text(
+                                      '${Fmt.birthday(user.birthday!)} · $when',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.accent,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            user.favoriteFoods.isEmpty
+                                ? 'Sin comidas favoritas aún'
+                                : 'Le encanta: ${user.favoriteFoods.join(', ')}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                          ),
+                        ],
                       ),
-                    ]),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }

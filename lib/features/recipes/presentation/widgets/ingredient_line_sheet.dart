@@ -30,7 +30,9 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
   late final _qty = TextEditingController(text: widget.initial == null ? '' : Fmt.qty(widget.initial!.quantity));
   late final _note = TextEditingController(text: widget.initial?.note ?? '');
   late final _price = TextEditingController(text: widget.initial?.purchase?.price.toStringAsFixed(2) ?? '');
-  late final _buyQty = TextEditingController(text: widget.initial?.purchase == null ? '' : Fmt.qty(widget.initial!.purchase!.quantity));
+  late final _buyQty = TextEditingController(
+    text: widget.initial?.purchase == null ? '' : Fmt.qty(widget.initial!.purchase!.quantity),
+  );
   String _name = '';
   late MeasureUnit _unit = widget.initial?.unit ?? MeasureUnit.gram;
   late MeasureUnit _buyUnit = widget.initial?.purchase?.unit ?? _unit;
@@ -58,10 +60,13 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
     if (!_form.currentState!.validate()) return;
     final ingredientId = _editing
         ? widget.initial!.ingredientId
-        : ref.read(ingredientsProvider.notifier).findOrCreate(
-              _name,
-              () => Ingredient(id: newId('i'), name: _name.trim(), category: 'Otros', defaultUnit: _unit),
-            ).id;
+        : ref
+              .read(ingredientsProvider.notifier)
+              .findOrCreate(
+                _name,
+                () => Ingredient(id: newId('i'), name: _name.trim(), category: 'Otros', defaultUnit: _unit),
+              )
+              .id;
     final price = double.tryParse(_price.text.replaceAll(',', '.'));
     final buyQty = double.tryParse(_buyQty.text.replaceAll(',', '.'));
     Navigator.pop(
@@ -97,7 +102,10 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(_editing ? 'Editar $editingName' : 'Agregar ingrediente', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                _editing ? 'Editar $editingName' : 'Agregar ingrediente',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 16),
               if (!_editing)
                 Autocomplete<Ingredient>(
@@ -122,26 +130,28 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
                   ),
                 ),
               const SizedBox(height: 12),
-              Row(children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _qty,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Cantidad'),
-                    validator: _positive,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _qty,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'Cantidad'),
+                      validator: _positive,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<MeasureUnit>(
-                    key: ValueKey('unit-$_unit'),
-                    initialValue: _unit,
-                    decoration: const InputDecoration(labelText: 'Unidad'),
-                    items: [for (final u in units) DropdownMenuItem(value: u, child: Text(u.label))],
-                    onChanged: (u) => u == null ? null : _changeUnit(u),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<MeasureUnit>(
+                      key: ValueKey('unit-$_unit'),
+                      initialValue: _unit,
+                      decoration: const InputDecoration(labelText: 'Unidad'),
+                      items: [for (final u in units) DropdownMenuItem(value: u, child: Text(u.label))],
+                      onChanged: (u) => u == null ? null : _changeUnit(u),
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _note,
@@ -150,34 +160,36 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
               const SizedBox(height: 18),
               Text('Precio de compra (opcional)', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
-              Row(children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _price,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Precio \$'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _price,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'Precio \$'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    controller: _buyQty,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Cant.'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _buyQty,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(labelText: 'Cant.'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButtonFormField<MeasureUnit>(
-                    key: ValueKey('buy-$_buyUnit'),
-                    initialValue: _buyUnit,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Unidad'),
-                    items: [for (final u in _unit.compatibleUnits) DropdownMenuItem(value: u, child: Text(u.symbol))],
-                    onChanged: (u) => setState(() => _buyUnit = u ?? _buyUnit),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<MeasureUnit>(
+                      key: ValueKey('buy-$_buyUnit'),
+                      initialValue: _buyUnit,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: 'Unidad'),
+                      items: [for (final u in _unit.compatibleUnits) DropdownMenuItem(value: u, child: Text(u.symbol))],
+                      onChanged: (u) => setState(() => _buyUnit = u ?? _buyUnit),
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
               const SizedBox(height: 20),
               FilledButton(onPressed: _submit, child: Text(_editing ? 'Guardar cambios' : 'Agregar')),
             ],

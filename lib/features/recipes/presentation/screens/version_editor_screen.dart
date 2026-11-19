@@ -110,11 +110,9 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
 
     // A "new" recipe that shares most ingredients with an existing dish is
     // probably the same dish: offer to save it as the user's version of it.
-    final match = ref.read(dishMatcherProvider).byIngredients(
-          _ingredients.map((i) => i.ingredientId),
-          ref.read(recipesProvider),
-          ref.read(versionsProvider),
-        );
+    final match = ref
+        .read(dishMatcherProvider)
+        .byIngredients(_ingredients.map((i) => i.ingredientId), ref.read(recipesProvider), ref.read(versionsProvider));
     if (match != null) {
       final asVersion = await _askSameDish(match);
       if (!mounted || asVersion == null) return;
@@ -162,9 +160,9 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       title: typedTitle.isNotEmpty
           ? typedTitle
           : isNewDish
-              ? 'Versión original'
-              // Merged from the "new recipe" form: the name they typed describes their version.
-              : (_isNewRecipe ? _name.text.trim() : 'Versión $number'),
+          ? 'Versión original'
+          // Merged from the "new recipe" form: the name they typed describes their version.
+          : (_isNewRecipe ? _name.text.trim() : 'Versión $number'),
       parentVersionId: parent?.id,
       createdBy: me,
       createdAt: DateTime.now(),
@@ -178,16 +176,20 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     );
 
     if (isNewDish) {
-      ref.read(recipesProvider.notifier).save(Recipe(
-            id: recipeId,
-            name: _name.text.trim(),
-            description: _description.text.trim(),
-            imageUrl: _photo,
-            categoryId: _categoryId,
-            authorId: me,
-            createdAt: DateTime.now(),
-            mainVersionId: version.id,
-          ));
+      ref
+          .read(recipesProvider.notifier)
+          .save(
+            Recipe(
+              id: recipeId,
+              name: _name.text.trim(),
+              description: _description.text.trim(),
+              imageUrl: _photo,
+              categoryId: _categoryId,
+              authorId: me,
+              createdAt: DateTime.now(),
+              mainVersionId: version.id,
+            ),
+          );
     }
     versions.add(version);
 
@@ -195,11 +197,9 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     if (target != null && target.authorId != me) {
       // My way of preparing someone else's dish: it stays in their dish under my
       // name, and the author is told which ingredients I added or removed.
-      final changes = ref.read(versionComparatorProvider).ingredientChanges(
-            parent!,
-            version,
-            (id) => ref.read(ingredientByIdProvider(id))?.name ?? id,
-          );
+      final changes = ref
+          .read(versionComparatorProvider)
+          .ingredientChanges(parent!, version, (id) => ref.read(ingredientByIdProvider(id))?.name ?? id);
       final myName = ref.read(userByIdProvider(me)).firstName;
       notifications.push(
         '$myName preparó tu plato a su manera',
@@ -224,9 +224,8 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     context.pushReplacement('/version/${version.id}');
   }
 
-  void _error(String msg) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: AppColors.wine, content: Text(msg)),
-      );
+  void _error(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: AppColors.danger, content: Text(msg)));
 
   @override
   Widget build(BuildContext context) {
@@ -244,10 +243,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       ),
       body: Form(
         key: _form,
-        child: TabBarView(
-          controller: _tabs,
-          children: [_buildInfoTab(), _buildIngredientsTab(), _buildStepsTab()],
-        ),
+        child: TabBarView(controller: _tabs, children: [_buildInfoTab(), _buildIngredientsTab(), _buildStepsTab()]),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -308,7 +304,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: selected ? AppColors.wine : Colors.transparent, width: 3),
+                      border: Border.all(color: selected ? AppColors.accent : Colors.transparent, width: 3),
                     ),
                     child: RecipeImage(url: _presetPhotos[i], radius: 10),
                   ),
@@ -338,7 +334,10 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
             decoration: const InputDecoration(labelText: 'Categoría'),
             items: [
               for (final c in categories)
-                DropdownMenuItem(value: c.id, child: Text('${c.emoji} ${c.name}', overflow: TextOverflow.ellipsis)),
+                DropdownMenuItem(
+                  value: c.id,
+                  child: Text('${c.emoji} ${c.name}', overflow: TextOverflow.ellipsis),
+                ),
             ],
             onChanged: (v) => setState(() => _categoryId = v ?? _categoryId),
           ),
@@ -359,7 +358,13 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
         ),
         const SizedBox(height: 16),
         _Stepper(label: 'Porciones', value: _servings, min: 1, onChanged: (v) => setState(() => _servings = v)),
-        _Stepper(label: 'Preparación (min)', value: _prep, min: 0, step: 5, onChanged: (v) => setState(() => _prep = v)),
+        _Stepper(
+          label: 'Preparación (min)',
+          value: _prep,
+          min: 0,
+          step: 5,
+          onChanged: (v) => setState(() => _prep = v),
+        ),
         _Stepper(label: 'Cocción (min)', value: _cook, min: 0, step: 5, onChanged: (v) => setState(() => _cook = v)),
         const SizedBox(height: 8),
         Text('Dificultad', style: Theme.of(context).textTheme.titleSmall),
@@ -379,7 +384,11 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
         icon: Icons.egg_alt_outlined,
         title: 'Sin ingredientes',
         message: 'Agrega los ingredientes con su cantidad y unidad.',
-        action: FilledButton.icon(onPressed: _addIngredient, icon: const Icon(Icons.add_rounded), label: const Text('Agregar ingrediente')),
+        action: FilledButton.icon(
+          onPressed: _addIngredient,
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Agregar ingrediente'),
+        ),
       );
     }
     return ListView(
@@ -394,7 +403,10 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
-                decoration: BoxDecoration(color: AppColors.wine, borderRadius: BorderRadius.circular(AppTheme.radiusM)),
+                decoration: BoxDecoration(
+                  color: AppColors.danger,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusM),
+                ),
                 child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
               ),
               onDismissed: (_) => setState(() => _ingredients = [..._ingredients]..removeAt(i)),
@@ -405,25 +417,38 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
                     ref.watch(ingredientByIdProvider(_ingredients[i].ingredientId))?.name ?? '—',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  subtitle: Text([
-                    if (_ingredients[i].note.isNotEmpty) _ingredients[i].note,
-                    if (_ingredients[i].purchase != null) 'Compra: ${Fmt.money(_ingredients[i].purchase!.price)}',
-                  ].join(' · ')),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text(
-                      '${Fmt.qty(_ingredients[i].quantity)} ${_ingredients[i].unit.symbol}',
-                      style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.wine),
-                    ),
-                    const Icon(Icons.chevron_right_rounded),
-                  ]),
+                  subtitle: Text(
+                    [
+                      if (_ingredients[i].note.isNotEmpty) _ingredients[i].note,
+                      if (_ingredients[i].purchase != null) 'Compra: ${Fmt.money(_ingredients[i].purchase!.price)}',
+                    ].join(' · '),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${Fmt.qty(_ingredients[i].quantity)} ${_ingredients[i].unit.symbol}',
+                        style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.accent),
+                      ),
+                      const Icon(Icons.chevron_right_rounded),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         const SizedBox(height: 4),
-        Text('Desliza a la izquierda para eliminar. Toca para editar.', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+        Text(
+          'Desliza a la izquierda para eliminar. Toca para editar.',
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(onPressed: _addIngredient, icon: const Icon(Icons.add_rounded), label: const Text('Agregar ingrediente')),
+        OutlinedButton.icon(
+          onPressed: _addIngredient,
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Agregar ingrediente'),
+        ),
       ],
     );
   }
@@ -444,61 +469,78 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
   }
 
   Widget _buildStepsTab() {
-    return Column(children: [
-      Expanded(
-        child: _steps.isEmpty
-            ? const EmptyState(icon: Icons.format_list_numbered_rounded, title: 'Sin pasos', message: 'Describe la preparación paso a paso.')
-            : ReorderableListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                itemCount: _steps.length,
-                onReorderItem: (from, to) => setState(() {
-                  final s = _steps.removeAt(from);
-                  _steps.insert(to, s);
-                }),
-                itemBuilder: (_, i) => Padding(
-                  key: ValueKey('step-$i-${_steps[i].hashCode}'),
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Card(
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.only(left: 12, right: 4),
-                      leading: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: AppColors.wine,
-                        child: Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
-                      ),
-                      title: Text(_steps[i], style: const TextStyle(fontSize: 14)),
-                      onTap: () => _editStep(i),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.wine),
-                          onPressed: () => setState(() => _steps.removeAt(i)),
-                        ),
-                        ReorderableDragStartListener(
-                          index: i,
-                          child: const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Icon(Icons.drag_indicator_rounded, color: AppColors.textMuted),
+    return Column(
+      children: [
+        Expanded(
+          child: _steps.isEmpty
+              ? const EmptyState(
+                  icon: Icons.format_list_numbered_rounded,
+                  title: 'Sin pasos',
+                  message: 'Describe la preparación paso a paso.',
+                )
+              : ReorderableListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  itemCount: _steps.length,
+                  onReorderItem: (from, to) => setState(() {
+                    final s = _steps.removeAt(from);
+                    _steps.insert(to, s);
+                  }),
+                  itemBuilder: (_, i) => Padding(
+                    key: ValueKey('step-$i-${_steps[i].hashCode}'),
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Card(
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.only(left: 12, right: 4),
+                        leading: CircleAvatar(
+                          radius: 14,
+                          backgroundColor: AppColors.surfaceHigh,
+                          child: Text(
+                            '${i + 1}',
+                            style: TextStyle(color: AppColors.accent, fontSize: 12, fontWeight: FontWeight.w800),
                           ),
                         ),
-                      ]),
+                        title: Text(_steps[i], style: const TextStyle(fontSize: 14)),
+                        onTap: () => _editStep(i),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+                              onPressed: () => setState(() => _steps.removeAt(i)),
+                            ),
+                            ReorderableDragStartListener(
+                              index: i,
+                              child: Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Icon(Icons.drag_indicator_rounded, color: AppColors.textMuted),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Column(
+            children: [
+              Text(
+                'Arrastra ⠿ para reordenar. Toca un paso para editarlo.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Column(children: [
-          Text('Arrastra ⠿ para reordenar. Toca un paso para editarlo.', style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: () => _editStep(null),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Agregar paso'),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => _editStep(null),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Agregar paso'),
+              ),
+            ],
           ),
-        ]),
-      ),
-    ]);
+        ),
+      ],
+    );
   }
 
   Future<void> _editStep(int? i) async {
@@ -536,20 +578,31 @@ class _Stepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Row(children: [
-          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
-          IconButton(
-            onPressed: value - step >= min ? () => onChanged(value - step) : null,
-            icon: const Icon(Icons.remove_circle_outline_rounded),
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ),
+        IconButton(
+          onPressed: value - step >= min ? () => onChanged(value - step) : null,
+          icon: const Icon(Icons.remove_circle_outline_rounded),
+        ),
+        SizedBox(
+          width: 36,
+          child: Text(
+            '$value',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
           ),
-          SizedBox(width: 36, child: Text('$value', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
-          IconButton(
-            onPressed: () => onChanged(value + step),
-            icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.wine),
-          ),
-        ]),
-      );
+        ),
+        IconButton(
+          onPressed: () => onChanged(value + step),
+          icon: Icon(Icons.add_circle_outline_rounded, color: AppColors.accent),
+        ),
+      ],
+    ),
+  );
 }
 
 /// While typing a new recipe's name, points to existing dishes with a similar name.
@@ -559,20 +612,22 @@ class _SimilarDishesHint extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => ValueListenableBuilder(
-        valueListenable: name,
-        builder: (context, value, _) {
-          final matches = ref.read(dishMatcherProvider).byName(value.text, ref.watch(activeRecipesProvider));
-          if (matches.isEmpty) return const SizedBox.shrink();
-          return Column(children: [
-            for (final r in matches.take(2))
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(children: [
+    valueListenable: name,
+    builder: (context, value, _) {
+      final matches = ref.read(dishMatcherProvider).byName(value.text, ref.watch(activeRecipesProvider));
+      if (matches.isEmpty) return const SizedBox.shrink();
+      return Column(
+        children: [
+          for (final r in matches.take(2))
+            Container(
+              margin: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
                   const Icon(Icons.lightbulb_outline_rounded, color: AppColors.gold),
                   const SizedBox(width: 10),
                   Expanded(
@@ -587,9 +642,11 @@ class _SimilarDishesHint extends ConsumerWidget {
                     onPressed: () => context.pushReplacement('/version/${r.mainVersionId}/derive'),
                     child: const Text('Crear mi versión'),
                   ),
-                ]),
+                ],
               ),
-          ]);
-        },
+            ),
+        ],
       );
+    },
+  );
 }

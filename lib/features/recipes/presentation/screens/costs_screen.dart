@@ -32,32 +32,43 @@ class _CostsScreenState extends ConsumerState<CostsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.forest,
-              borderRadius: BorderRadius.circular(AppTheme.radiusL),
+            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(AppTheme.radiusL)),
+            child: Column(
+              children: [
+                Text('Costo total', style: TextStyle(color: AppColors.textMuted)),
+                const SizedBox(height: 4),
+                Text(
+                  Fmt.money(costs.total),
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 36, fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${Fmt.money(costs.perServing)} por persona',
+                  style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton.filledTonal(
+                      onPressed: servings > 1 ? () => setState(() => _servings = servings - 1) : null,
+                      icon: const Icon(Icons.remove_rounded),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        '$servings personas',
+                        style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800, fontSize: 16),
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      onPressed: () => setState(() => _servings = servings + 1),
+                      icon: const Icon(Icons.add_rounded),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            child: Column(children: [
-              const Text('Costo total', style: TextStyle(color: AppColors.beige)),
-              const SizedBox(height: 4),
-              Text(Fmt.money(costs.total), style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900)),
-              const SizedBox(height: 4),
-              Text('${Fmt.money(costs.perServing)} por persona', style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 14),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                IconButton.filledTonal(
-                  onPressed: servings > 1 ? () => setState(() => _servings = servings - 1) : null,
-                  icon: const Icon(Icons.remove_rounded),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('$servings personas', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
-                ),
-                IconButton.filledTonal(
-                  onPressed: () => setState(() => _servings = servings + 1),
-                  icon: const Icon(Icons.add_rounded),
-                ),
-              ]),
-            ]),
           ),
           const SizedBox(height: 12),
           Text(
@@ -72,43 +83,54 @@ class _CostsScreenState extends ConsumerState<CostsScreen> {
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(14),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Expanded(
-                        child: Text(
-                          ref.watch(ingredientByIdProvider(l.ingredientId))?.name ?? '—',
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              ref.watch(ingredientByIdProvider(l.ingredientId))?.name ?? '—',
+                              style: const TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                          ),
+                          Text(
+                            l.cost == null ? 'Sin precio' : Fmt.money(l.cost!),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: l.cost == null ? AppColors.textMuted : AppColors.accent,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      if (l.cost != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: maxCost == 0 ? 0 : l.cost! / maxCost,
+                            minHeight: 6,
+                            backgroundColor: AppColors.surfaceHigh,
+                            color: AppColors.gold,
+                          ),
                         ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(child: _Kv('Usado', '${Fmt.qty(l.usedQuantity)} ${l.line.unit.symbol}')),
+                          Expanded(
+                            child: _Kv(
+                              'Compra',
+                              l.line.purchase == null
+                                  ? '—'
+                                  : '${Fmt.qty(l.line.purchase!.quantity)} ${l.line.purchase!.unit.symbol} a ${Fmt.money(l.line.purchase!.price)}',
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        l.cost == null ? 'Sin precio' : Fmt.money(l.cost!),
-                        style: TextStyle(fontWeight: FontWeight.w900, color: l.cost == null ? AppColors.textMuted : AppColors.wine, fontSize: 16),
-                      ),
-                    ]),
-                    const SizedBox(height: 6),
-                    if (l.cost != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: maxCost == 0 ? 0 : l.cost! / maxCost,
-                          minHeight: 6,
-                          backgroundColor: AppColors.beigeSoft,
-                          color: AppColors.gold,
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Expanded(child: _Kv('Usado', '${Fmt.qty(l.usedQuantity)} ${l.line.unit.symbol}')),
-                      Expanded(
-                        child: _Kv(
-                          'Compra',
-                          l.line.purchase == null
-                              ? '—'
-                              : '${Fmt.qty(l.line.purchase!.quantity)} ${l.line.purchase!.unit.symbol} a ${Fmt.money(l.line.purchase!.price)}',
-                        ),
-                      ),
-                    ]),
-                  ]),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -124,8 +146,11 @@ class _Kv extends StatelessWidget {
   final String v;
 
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(k, style: Theme.of(context).textTheme.bodySmall),
-        Text(v, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-      ]);
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(k, style: Theme.of(context).textTheme.bodySmall),
+      Text(v, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+    ],
+  );
 }

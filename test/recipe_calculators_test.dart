@@ -4,6 +4,7 @@ import 'package:miski_app/features/recipes/domain/entities/measure_unit.dart';
 import 'package:miski_app/features/recipes/domain/entities/recipe.dart';
 import 'package:miski_app/features/recipes/domain/services/dish_matcher.dart';
 import 'package:miski_app/features/recipes/domain/services/recipe_calculators.dart';
+import 'package:miski_app/features/recipes/domain/services/recipe_filters.dart';
 import 'package:miski_app/features/social/domain/social_entities.dart';
 
 RecipeVersion v(String id) => MockData.versions.firstWhere((x) => x.id == id);
@@ -121,6 +122,50 @@ void main() {
       final ratings = {'v1': (average: 4.0, count: 4), 'v2': (average: 4.5, count: 4), 'v3': (average: 5.0, count: 1)};
       final preps = preparationsByAuthor(ceviche, (id) => ratings[id] ?? (average: 0.0, count: 0));
       expect(preps.map((p) => p.authorId), ['u3', 'u2', 'u1']);
+    });
+  });
+
+  group('recipe filters', () {
+    final byId = {for (final x in MockData.versions) x.id: x};
+    RatingStats rating(String id) => switch (id) {
+          'r1' => (average: 4.5, count: 10, reliable: true),
+          'r2' => (average: 5.0, count: 1, reliable: false),
+          'r3' => (average: 4.0, count: 20, reliable: true),
+          _ => (average: 0.0, count: 0, reliable: false),
+        };
+    List<String> run(RecipeFilters f) => applyRecipeFilters(
+          MockData.recipes,
+          f,
+          mainVersionOf: (r) => byId[r.mainVersionId],
+          ratingOf: (r) => rating(r.id),
+        ).map((r) => r.id).toList();
+
+    test('best rated puts reliable averages first', () {
+      expect(run(const RecipeFilters()).take(3), ['r1', 'r3', 'r2']);
+    });
+
+    test('most voted sorts by number of reviews', () {
+      expect(run(const RecipeFilters(sort: RecipeSort.mostVoted)).take(2), ['r3', 'r1']);
+    });
+
+    test('size and time use the main version', () {
+      for (final id in run(const RecipeFilters(size: SizeFilter.small, time: TimeFilter.upTo30))) {
+        final v = byId[MockData.recipes.firstWhere((r) => r.id == id).mainVersionId]!;
+        expect(v.servings <= 2 && v.totalMinutes <= 30, isTrue);
+      }
+      expect(run(const RecipeFilters(categoryId: 'c4')).every((id) => MockData.recipes.firstWhere((r) => r.id == id).categoryId == 'c4'), isTrue);
+    });
+
+    test('best of the week only counts reviews from the last 7 days', () {
+      final now = DateTime(2026, 11, 19);
+      final best = bestOfPeriod([
+        (recipeId: 'a', stars: 5, createdAt: DateTime(2026, 11, 18)),
+        (recipeId: 'a', stars: 4, createdAt: DateTime(2026, 11, 17)),
+        (recipeId: 'b', stars: 5, createdAt: DateTime(2026, 11, 15)),
+        (recipeId: 'c', stars: 5, createdAt: DateTime(2026, 11, 1)), // too old
+      ], now: now);
+      expect(best.map((e) => e.recipeId), ['b', 'a']);
+      expect(best.last.average, 4.5);
     });
   });
 }
