@@ -49,6 +49,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
     final comments = ref.watch(commentsOfVersionProvider(version.id));
     final category = ref.watch(categoriesProvider).where((c) => c.id == recipe.categoryId).firstOrNull;
     final isMain = recipe.mainVersionId == version.id;
+    final isOwner = recipe.authorId == ref.watch(currentUserIdProvider);
     // Viewing someone else's version while having my own in this dish: ask where to start from.
     final myLatest = ref.watch(myLatestVersionProvider(recipe.id));
     final askBase = myLatest != null && version.createdBy != ref.watch(currentUserIdProvider);
@@ -70,11 +71,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 itemBuilder: (_) => [
                   const PopupMenuItem(value: 'history', child: Text('Árbol de versiones')),
                   if (versions.length > 1) const PopupMenuItem(value: 'compare', child: Text('Comparar versiones')),
-                  if (!isMain) const PopupMenuItem(value: 'main', child: Text('Marcar como versión principal')),
-                  PopupMenuItem(
-                    value: 'archive',
-                    child: Text(recipe.status == RecipeStatus.active ? 'Archivar receta' : 'Restaurar receta'),
-                  ),
+                  // Main version and archiving belong to the dish's author only.
+                  if (isOwner && !isMain)
+                    const PopupMenuItem(value: 'main', child: Text('Marcar como versión principal')),
+                  if (isOwner)
+                    PopupMenuItem(
+                      value: 'archive',
+                      child: Text(recipe.status == RecipeStatus.active ? 'Archivar receta' : 'Restaurar receta'),
+                    ),
                 ],
               ),
             ],

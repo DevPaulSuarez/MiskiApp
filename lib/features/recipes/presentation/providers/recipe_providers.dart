@@ -31,14 +31,26 @@ class RecipesNotifier extends Notifier<List<Recipe>> {
     state = _repo.getRecipes();
   }
 
-  void setMainVersion(String recipeId, String versionId) =>
-      save(byId(recipeId).copyWith(mainVersionId: versionId));
+  /// Only the dish's author may change its main version or archive it.
+  bool canManage(String recipeId) => byId(recipeId).authorId == ref.read(currentUserIdProvider);
+
+  void setMainVersion(String recipeId, String versionId) {
+    _requireAuthor(recipeId);
+    save(byId(recipeId).copyWith(mainVersionId: versionId));
+  }
 
   void toggleArchive(String recipeId) {
+    _requireAuthor(recipeId);
     final r = byId(recipeId);
     save(r.copyWith(
       status: r.status == RecipeStatus.active ? RecipeStatus.archived : RecipeStatus.active,
     ));
+  }
+
+  void _requireAuthor(String recipeId) {
+    if (!canManage(recipeId)) {
+      throw StateError('Solo el autor del plato puede cambiar su versión principal o archivarlo.');
+    }
   }
 
   Recipe byId(String id) => state.firstWhere((r) => r.id == id);
