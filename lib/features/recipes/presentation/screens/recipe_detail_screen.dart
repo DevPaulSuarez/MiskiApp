@@ -118,7 +118,12 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _VersionBanner(version: version, authorName: author.name, isMain: isMain),
+                  _VersionBanner(
+                    version: version,
+                    authorName: author.name,
+                    isMain: isMain,
+                    onAuthorTap: () => context.push('/user/${author.id}'),
+                  ),
                   const SizedBox(height: 14),
                   Wrap(spacing: 8, runSpacing: 8, children: [
                     InfoPill(icon: Icons.timer_outlined, label: 'Prep. ${Fmt.minutes(version.prepMinutes)}'),
@@ -305,13 +310,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
 }
 
 class _VersionBanner extends StatelessWidget {
-  const _VersionBanner({required this.version, required this.authorName, required this.isMain});
+  const _VersionBanner({
+    required this.version,
+    required this.authorName,
+    required this.isMain,
+    required this.onAuthorTap,
+  });
   final RecipeVersion version;
   final String authorName;
   final bool isMain;
+  final VoidCallback onAuthorTap;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => GestureDetector(
+      onTap: onAuthorTap,
+      child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.forest,
@@ -333,8 +346,10 @@ class _VersionBanner extends StatelessWidget {
               ),
             ]),
           ),
+          const Icon(Icons.person_outline_rounded, color: AppColors.beige, size: 20),
         ]),
-      );
+      ),
+    );
 }
 
 class _ServingsCard extends StatelessWidget {

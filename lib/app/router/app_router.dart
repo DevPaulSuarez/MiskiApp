@@ -34,9 +34,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen())]),
         ],
       ),
-      GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
+      GoRoute(path: '/search', builder: (_, s) => SearchScreen(initialQuery: s.uri.queryParameters['q'])),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationsScreen()),
-      GoRoute(path: '/recipe-new', builder: (_, _) => const VersionEditorScreen()),
+      GoRoute(path: '/user/:id', builder: (_, s) => ProfileScreen(userId: s.pathParameters['id'])),
+      GoRoute(
+        path: '/recipe-new',
+        builder: (_, s) => VersionEditorScreen(initialName: s.uri.queryParameters['name']),
+      ),
       GoRoute(
         path: '/recipe/:id',
         builder: (_, s) => RecipeDetailScreen(recipeId: s.pathParameters['id']!),

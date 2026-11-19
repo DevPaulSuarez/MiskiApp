@@ -89,8 +89,37 @@ class VersionDiff {
   final bool stepsReordered;
 }
 
+/// Only which ingredients were added or removed; quantity tweaks are ignored.
+class IngredientChangeSummary {
+  const IngredientChangeSummary({required this.added, required this.removed});
+  final List<String> added;
+  final List<String> removed;
+
+  bool get isEmpty => added.isEmpty && removed.isEmpty;
+
+  String describe() {
+    if (isEmpty) return 'Sin cambios de ingredientes';
+    return [
+      if (added.isNotEmpty) 'Agregó: ${added.join(', ')}',
+      if (removed.isNotEmpty) 'Quitó: ${removed.join(', ')}',
+    ].join(' · ');
+  }
+}
+
 class VersionComparator {
   const VersionComparator();
+
+  IngredientChangeSummary ingredientChanges(
+    RecipeVersion base,
+    RecipeVersion modified,
+    String Function(String ingredientId) nameOf,
+  ) {
+    final d = compare(base, modified);
+    return IngredientChangeSummary(
+      added: [for (final i in d.added) nameOf(i.ingredientId)],
+      removed: [for (final i in d.removed) nameOf(i.ingredientId)],
+    );
+  }
 
   VersionDiff compare(RecipeVersion a, RecipeVersion b) {
     final aMap = {for (final i in a.ingredients) i.ingredientId: i};

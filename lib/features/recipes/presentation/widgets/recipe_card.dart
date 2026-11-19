@@ -91,7 +91,14 @@ class RecipeCard extends ConsumerWidget {
                       const Spacer(),
                       if (version != null) ...[
                         const Icon(Icons.schedule_rounded, size: 14, color: AppColors.textMuted),
-                        Text(' ${Fmt.minutes(version.totalMinutes)}', style: Theme.of(context).textTheme.bodySmall),
+                        Flexible(
+                          child: Text(
+                            ' ${Fmt.minutes(version.totalMinutes)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
                       ],
                     ],
                   ),

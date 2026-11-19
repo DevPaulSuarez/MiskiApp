@@ -61,4 +61,27 @@ void main() {
     expect(v3.isReliable, isFalse);
     expect(v2.isReliable, isTrue);
   });
+
+  test('ingredient change summary lists only added and removed ingredients', () {
+    String nameOf(String id) => MockData.ingredients.firstWhere((i) => i.id == id).name;
+    final s = const VersionComparator().ingredientChanges(v('v2'), v('v3'), nameOf);
+    expect(s.added, ['Rocoto', 'Kion (jengibre)', 'Apio', 'Cancha serrana']);
+    expect(s.removed, ['Ají limo', 'Choclo']);
+    // Culantro went 10 g -> 15 g: quantity changes are not reported.
+    expect(s.describe(), isNot(contains('Culantro')));
+    expect(s.describe(), 'Agregó: Rocoto, Kion (jengibre), Apio, Cancha serrana · Quitó: Ají limo, Choclo');
+  });
+
+  test('same ingredients means no ingredient changes', () {
+    final s = const VersionComparator().ingredientChanges(v('v2'), v('v2'), (id) => id);
+    expect(s.isEmpty, isTrue);
+    expect(s.describe(), 'Sin cambios de ingredientes');
+  });
+
+  test('days until birthday wraps to next year and handles today', () {
+    final u = MockData.users.firstWhere((u) => u.id == 'u3'); // 9 dic
+    expect(u.daysUntilBirthday(DateTime(2026, 11, 19)), 20);
+    expect(u.daysUntilBirthday(DateTime(2026, 12, 9, 18)), 0);
+    expect(u.daysUntilBirthday(DateTime(2026, 12, 10)), 364);
+  });
 }

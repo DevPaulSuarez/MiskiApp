@@ -12,7 +12,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(notificationsProvider);
+    final items = ref.watch(myNotificationsProvider);
     final notifier = ref.read(notificationsProvider.notifier);
     return Scaffold(
       appBar: AppBar(

@@ -23,8 +23,11 @@ const _presetPhotos = [
 /// Creates a new recipe (with V1) or a new version derived from [parentVersionId].
 /// Published versions are never edited in place.
 class VersionEditorScreen extends ConsumerStatefulWidget {
-  const VersionEditorScreen({super.key, this.parentVersionId});
+  const VersionEditorScreen({super.key, this.parentVersionId, this.initialName});
   final String? parentVersionId;
+
+  /// Pre-fills the recipe name (e.g. coming from a search with no results).
+  final String? initialName;
 
   @override
   ConsumerState<VersionEditorScreen> createState() => _VersionEditorScreenState();
@@ -57,6 +60,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
   @override
   void initState() {
     super.initState();
+    if (_isNewRecipe && widget.initialName != null) _name.text = widget.initialName!;
     if (!_isNewRecipe) {
       final p = ref.read(versionByIdProvider(widget.parentVersionId!))!;
       _parent = p;
@@ -131,11 +135,37 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
           ));
     }
     versions.add(version);
-    ref.read(notificationsProvider.notifier).push(
-          _isNewRecipe ? 'Receta creada' : 'Nueva versión publicada',
-          _isNewRecipe ? '"${_name.text.trim()}" ya está en tu recetario.' : 'Publicaste la V$number.',
-          route: '/version/${version.id}',
-        );
+    final notifications = ref.read(notificationsProvider.notifier);
+    final recipe = _isNewRecipe ? null : ref.read(recipeByIdProvider(recipeId));
+    final isContribution = recipe != null && recipe.authorId != me;
+    if (isContribution) {
+      // Modifying someone else's recipe: the version stays in their recipe
+      // (counts as a contribution for me) and the author is told what changed.
+      final changes = ref.read(versionComparatorProvider).ingredientChanges(
+            _parent!,
+            version,
+            (id) => ref.read(ingredientByIdProvider(id))?.name ?? id,
+          );
+      final myName = ref.read(userByIdProvider(me)).name.split(' ').first;
+      notifications.push(
+        '$myName modificó tu receta',
+        '${recipe.name} · V$number — ${changes.describe()}',
+        route: '/version/${version.id}',
+        toUserId: recipe.authorId,
+      );
+      final authorName = ref.read(userByIdProvider(recipe.authorId)).name.split(' ').first;
+      notifications.push(
+        'Aporte publicado',
+        'Tu V$number de "${recipe.name}" se sumó a la receta de $authorName.',
+        route: '/version/${version.id}',
+      );
+    } else {
+      notifications.push(
+        _isNewRecipe ? 'Receta creada' : 'Nueva versión publicada',
+        _isNewRecipe ? '"${_name.text.trim()}" ya está en tu recetario.' : 'Publicaste la V$number.',
+        route: '/version/${version.id}',
+      );
+    }
     showSuccess(context, _isNewRecipe ? 'Receta creada' : 'Versión V$number creada');
     context.pushReplacement('/version/${version.id}');
   }
@@ -178,6 +208,14 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     );
   }
 
+  /// Extra hint when editing a recipe that belongs to someone else.
+  String _contributionNote() {
+    final recipe = ref.read(recipeByIdProvider(_parent!.recipeId));
+    if (recipe == null || recipe.authorId == ref.read(currentUserIdProvider)) return '';
+    final author = ref.read(userByIdProvider(recipe.authorId)).name.split(' ').first;
+    return '\nSe sumará como tu aporte a la receta de $author, y le avisaremos qué ingredientes agregaste o quitaste.';
+  }
+
   Widget _buildInfoTab() {
     final categories = ref.watch(categoriesProvider);
     return ListView(
@@ -192,7 +230,8 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              'Partes de una copia de V${_parent!.number}. La versión original no se modificará.',
+              'Partes de una copia de V${_parent!.number}. La versión original no se modificará.'
+              '${_contributionNote()}',
               style: const TextStyle(fontSize: 13),
             ),
           ),
@@ -240,8 +279,12 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: _categoryId,
+            isExpanded: true,
             decoration: const InputDecoration(labelText: 'Categoría'),
-            items: [for (final c in categories) DropdownMenuItem(value: c.id, child: Text('${c.emoji} ${c.name}'))],
+            items: [
+              for (final c in categories)
+                DropdownMenuItem(value: c.id, child: Text('${c.emoji} ${c.name}', overflow: TextOverflow.ellipsis)),
+            ],
             onChanged: (v) => setState(() => _categoryId = v ?? _categoryId),
           ),
           const SizedBox(height: 12),

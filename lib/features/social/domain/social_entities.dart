@@ -1,11 +1,46 @@
 class AppUser {
-  const AppUser({required this.id, required this.name, required this.handle, required this.bio});
+  const AppUser({
+    required this.id,
+    required this.name,
+    required this.handle,
+    required this.bio,
+    this.birthday,
+    this.favoriteCategoryIds = const [],
+    this.favoriteFoods = const [],
+  });
   final String id;
   final String name;
   final String handle;
   final String bio;
+  final DateTime? birthday;
+  final List<String> favoriteCategoryIds;
+
+  /// Free-text dishes the person loves (e.g. "Lomo saltado"), shown on their
+  /// public profile so friends can surprise them on their birthday.
+  final List<String> favoriteFoods;
 
   String get initials => name.split(' ').take(2).map((p) => p[0]).join().toUpperCase();
+  String get firstName => name.split(' ').first;
+
+  /// Days from [today] until the next birthday (0 = today), or null if unknown.
+  int? daysUntilBirthday(DateTime today) {
+    final b = birthday;
+    if (b == null) return null;
+    final t = DateTime(today.year, today.month, today.day);
+    var next = DateTime(t.year, b.month, b.day);
+    if (next.isBefore(t)) next = DateTime(t.year + 1, b.month, b.day);
+    return next.difference(t).inDays;
+  }
+
+  AppUser copyWith({List<String>? favoriteFoods}) => AppUser(
+        id: id,
+        name: name,
+        handle: handle,
+        bio: bio,
+        birthday: birthday,
+        favoriteCategoryIds: favoriteCategoryIds,
+        favoriteFoods: favoriteFoods ?? this.favoriteFoods,
+      );
 }
 
 enum InvitationStatus {
@@ -122,6 +157,7 @@ class Comment {
 class AppNotification {
   const AppNotification({
     required this.id,
+    required this.userId,
     required this.title,
     required this.body,
     required this.createdAt,
@@ -130,6 +166,9 @@ class AppNotification {
   });
 
   final String id;
+
+  /// Recipient of the notification.
+  final String userId;
   final String title;
   final String body;
   final DateTime createdAt;
@@ -137,5 +176,5 @@ class AppNotification {
   final bool read;
 
   AppNotification markRead() =>
-      AppNotification(id: id, title: title, body: body, createdAt: createdAt, route: route, read: true);
+      AppNotification(id: id, userId: userId, title: title, body: body, createdAt: createdAt, route: route, read: true);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -105,7 +106,10 @@ class _Bubble extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        UserAvatar(initials: user.initials),
+        GestureDetector(
+          onTap: () => context.push('/user/${user.id}'),
+          child: UserAvatar(initials: user.initials),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Container(
@@ -117,7 +121,12 @@ class _Bubble extends ConsumerWidget {
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Expanded(child: Text(user.name, style: const TextStyle(fontWeight: FontWeight.w800))),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => context.push('/user/${user.id}'),
+                    child: Text(user.name, style: const TextStyle(fontWeight: FontWeight.w800)),
+                  ),
+                ),
                 Text(Fmt.relative(date), style: Theme.of(context).textTheme.bodySmall),
               ]),
               if (stars != null) StarRating(value: stars!.toDouble(), size: 14),

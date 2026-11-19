@@ -4,7 +4,28 @@ import '../../../../core/mock/mock_data.dart';
 import '../../../recipes/presentation/providers/recipe_providers.dart';
 import '../../domain/social_entities.dart';
 
-final usersProvider = Provider<List<AppUser>>((_) => MockData.users);
+class UsersNotifier extends Notifier<List<AppUser>> {
+  @override
+  List<AppUser> build() => [...MockData.users];
+
+  void setFavoriteFoods(String userId, List<String> foods) =>
+      state = [for (final u in state) u.id == userId ? u.copyWith(favoriteFoods: foods) : u];
+}
+
+final usersProvider = NotifierProvider<UsersNotifier, List<AppUser>>(UsersNotifier.new);
+
+/// Other users whose birthday falls within the next [upcomingBirthdayDays], soonest first.
+const upcomingBirthdayDays = 30;
+final upcomingBirthdaysProvider = Provider<List<(AppUser, int)>>((ref) {
+  final me = ref.watch(currentUserIdProvider);
+  final today = DateTime.now();
+  final list = [
+    for (final u in ref.watch(usersProvider))
+      if (u.id != me)
+        if (u.daysUntilBirthday(today) case final d? when d <= upcomingBirthdayDays) (u, d),
+  ]..sort((a, b) => a.$2.compareTo(b.$2));
+  return list;
+});
 
 final userByIdProvider = Provider.family<AppUser, String>(
   (ref, id) => ref.watch(usersProvider).firstWhere((u) => u.id == id),
@@ -15,19 +36,37 @@ class NotificationsNotifier extends Notifier<List<AppNotification>> {
   @override
   List<AppNotification> build() => [...MockData.notifications];
 
-  void push(String title, String body, {String? route}) => state = [
-        AppNotification(id: newId('n'), title: title, body: body, createdAt: DateTime.now(), route: route),
+  /// Sends to [toUserId], or to the current user when omitted.
+  void push(String title, String body, {String? route, String? toUserId}) => state = [
+        AppNotification(
+          id: newId('n'),
+          userId: toUserId ?? ref.read(currentUserIdProvider),
+          title: title,
+          body: body,
+          createdAt: DateTime.now(),
+          route: route,
+        ),
         ...state,
       ];
 
   void markRead(String id) => state = [for (final n in state) n.id == id ? n.markRead() : n];
-  void markAllRead() => state = [for (final n in state) n.markRead()];
+
+  void markAllRead() {
+    final me = ref.read(currentUserIdProvider);
+    state = [for (final n in state) n.userId == me ? n.markRead() : n];
+  }
 }
 
+/// All notifications in the system (every recipient). Screens should use [myNotificationsProvider].
 final notificationsProvider =
     NotifierProvider<NotificationsNotifier, List<AppNotification>>(NotificationsNotifier.new);
 
-final unreadCountProvider = Provider((ref) => ref.watch(notificationsProvider).where((n) => !n.read).length);
+final myNotificationsProvider = Provider((ref) {
+  final me = ref.watch(currentUserIdProvider);
+  return ref.watch(notificationsProvider).where((n) => n.userId == me).toList();
+});
+
+final unreadCountProvider = Provider((ref) => ref.watch(myNotificationsProvider).where((n) => !n.read).length);
 
 // --- Invitations ---
 class InvitationsNotifier extends Notifier<List<Invitation>> {

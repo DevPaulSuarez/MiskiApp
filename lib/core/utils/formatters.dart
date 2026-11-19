@@ -11,6 +11,14 @@ abstract final class Fmt {
 
   static const _months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
+  static const _monthsLong = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  ];
+
+  /// Day and month only, e.g. "18 de marzo".
+  static String birthday(DateTime d) => '${d.day} de ${_monthsLong[d.month - 1]}';
+
   static String date(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
 
   static String relative(DateTime d) {

@@ -9,11 +9,11 @@ abstract final class MockData {
   static const currentUserId = 'u1';
 
   static final users = <AppUser>[
-    const AppUser(id: 'u1', name: 'Paul Suárez', handle: '@paul', bio: 'Cocinero de fin de semana. Fan del ceviche.'),
-    const AppUser(id: 'u2', name: 'Carlos Mendoza', handle: '@carlosm', bio: 'Chef de cocina marina.'),
-    const AppUser(id: 'u3', name: 'María Quispe', handle: '@mariaq', bio: 'Repostera y viajera.'),
-    const AppUser(id: 'u4', name: 'Lucía Ramos', handle: '@luciar', bio: 'Siempre lista para probar.'),
-    const AppUser(id: 'u5', name: 'Diego Torres', handle: '@diegot', bio: 'Parrillero oficial.'),
+    AppUser(id: 'u1', name: 'Paul Suárez', handle: '@paul', bio: 'Cocinero de fin de semana. Fan del ceviche.', birthday: DateTime(1995, 3, 18), favoriteCategoryIds: const ['c1', 'c3', 'c6'], favoriteFoods: const ['Ceviche', 'Lomo saltado', 'Picarones']),
+    AppUser(id: 'u2', name: 'Carlos Mendoza', handle: '@carlosm', bio: 'Chef de cocina marina.', birthday: DateTime(1988, 7, 2), favoriteCategoryIds: const ['c3'], favoriteFoods: const ['Arroz con mariscos', 'Tiradito']),
+    AppUser(id: 'u3', name: 'María Quispe', handle: '@mariaq', bio: 'Repostera y viajera.', birthday: DateTime(1992, 12, 9), favoriteCategoryIds: const ['c4', 'c5'], favoriteFoods: const ['Torta de chocolate', 'Suspiro limeño', 'Chicha morada']),
+    AppUser(id: 'u4', name: 'Lucía Ramos', handle: '@luciar', bio: 'Siempre lista para probar.', birthday: DateTime(1999, 5, 27), favoriteFoods: const ['Ají de gallina']),
+    AppUser(id: 'u5', name: 'Diego Torres', handle: '@diegot', bio: 'Parrillero oficial.', birthday: DateTime(1990, 10, 14), favoriteCategoryIds: const ['c3', 'c8'], favoriteFoods: const ['Anticuchos', 'Pachamanca']),
   ];
 
   static const categories = <RecipeCategory>[
@@ -349,9 +349,9 @@ abstract final class MockData {
   ];
 
   static final notifications = <AppNotification>[
-    AppNotification(id: 'n1', title: 'Nueva invitación', body: 'María te invitó a probar "Ceviche · V3".', createdAt: DateTime(2026, 11, 15), route: '/invitations'),
-    AppNotification(id: 'n2', title: 'Nueva versión', body: 'María creó la versión 3 de tu ceviche.', createdAt: DateTime(2026, 10, 15), route: '/recipe/r1/versions'),
-    AppNotification(id: 'n3', title: 'Nueva calificación', body: 'Lucía calificó tu ceviche con 4 estrellas.', createdAt: DateTime(2026, 9, 6), route: '/version/v1', read: true),
+    AppNotification(id: 'n1', userId: 'u1', title: 'Nueva invitación', body: 'María te invitó a probar "Ceviche · V3".', createdAt: DateTime(2026, 11, 15), route: '/invitations'),
+    AppNotification(id: 'n2', userId: 'u1', title: 'María modificó tu receta', body: 'Ceviche · V3 — Agregó: Rocoto, Kion (jengibre), Apio, Cancha serrana · Quitó: Ají limo, Choclo', createdAt: DateTime(2026, 10, 15), route: '/recipe/r1/versions'),
+    AppNotification(id: 'n3', userId: 'u1', title: 'Nueva calificación', body: 'Lucía calificó tu ceviche con 4 estrellas.', createdAt: DateTime(2026, 9, 6), route: '/version/v1', read: true),
   ];
 
   static const favoriteRecipeIds = {'r1', 'r5'};

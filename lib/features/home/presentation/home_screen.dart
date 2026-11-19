@@ -8,9 +8,10 @@ import '../../../shared/widgets/common_widgets.dart';
 import '../../recipes/presentation/providers/recipe_providers.dart';
 import '../../recipes/presentation/screens/cookbook_screen.dart';
 import '../../recipes/presentation/widgets/recipe_card.dart';
-import '../../social/domain/social_entities.dart';
 import '../../social/presentation/providers/social_providers.dart';
 import '../../social/presentation/widgets/notifications_action.dart';
+import 'widgets/dashboard_shortcuts.dart';
+import 'widgets/upcoming_birthdays.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,10 +21,6 @@ class HomeScreen extends ConsumerWidget {
     final me = ref.watch(userByIdProvider(ref.watch(currentUserIdProvider)));
     final recipes = ref.watch(activeRecipesProvider);
     final categories = ref.watch(categoriesProvider);
-    final pendingInvites = ref
-        .watch(invitationsProvider)
-        .where((i) => i.toUserId == me.id && i.status == InvitationStatus.pending)
-        .length;
     final featured = recipes.where((r) => r.id == 'r1').firstOrNull ?? recipes.firstOrNull;
     final recent = [...recipes]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
@@ -78,27 +75,9 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            if (pendingInvites > 0)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: Material(
-                    color: AppColors.wine,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                    child: ListTile(
-                      onTap: () => context.go('/invitations'),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusM)),
-                      leading: const Icon(Icons.mail_rounded, color: AppColors.gold),
-                      title: Text(
-                        'Tienes $pendingInvites invitación${pendingInvites > 1 ? 'es' : ''} pendiente${pendingInvites > 1 ? 's' : ''}',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                      ),
-                      subtitle: const Text('Te invitaron a probar un plato', style: TextStyle(color: AppColors.beige)),
-                      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
+            const SliverToBoxAdapter(child: SectionHeader('Accesos rápidos')),
+            const SliverToBoxAdapter(child: DashboardShortcuts()),
+            const SliverToBoxAdapter(child: UpcomingBirthdays()),
             const SliverToBoxAdapter(child: SectionHeader('Categorías')),
             SliverToBoxAdapter(
               child: SizedBox(
@@ -165,11 +144,6 @@ class HomeScreen extends ConsumerWidget {
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/recipe-new'),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Nueva receta', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
     );
   }
