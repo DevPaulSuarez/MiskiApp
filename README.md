@@ -42,12 +42,11 @@ cd backend && php artisan test                     # API (reglas de negocio)
 dart run tool/api_smoke_test.dart                  # punta a punta contra la API corriendo (crea datos)
 ```
 
-## Subir a un servidor
+## Servidor
 
-`docker-compose.yml` levanta la API (PHP-FPM + Nginx) y MySQL. Copia `backend/.env.example` a
-`backend/.env.production` (APP_ENV=production, APP_KEY, APP_URL), define `DB_PASSWORD` y `DB_ROOT_PASSWORD`, y
-ejecuta `docker compose up -d --build`. Sirve la API con HTTPS y, cuando lo hagas, quita
-`android:usesCleartextTraffic` del `AndroidManifest.xml`.
+Por ahora Miski corre solo en local (tu Mac + celulares en la misma WiFi). Cuando haga falta publicarlo, un
+hosting compartido con PHP y MySQL basta: es un Laravel estándar, sin colas ni procesos aparte. En ese momento
+habrá que servirlo con HTTPS y quitar `android:usesCleartextTraffic` del `AndroidManifest.xml`.
 
 ## Ramas y commits
 
