@@ -1,17 +1,55 @@
-# miski_app
+# Miski
 
-A new Flutter project.
+Plataforma de recetas con versiones: cada plato existe una sola vez y cada persona aporta su forma de prepararlo
+(versiones con su nombre), invita a sus amigos a probarlo y recibe calificaciones.
 
-## Getting Started
+| Parte | Tecnología | Carpeta |
+|---|---|---|
+| App móvil | Flutter 3 · Riverpod 3 · GoRouter | `lib/` |
+| API | Laravel 13 · Sanctum (tokens) | `backend/` |
+| Base de datos | MySQL | `backend/database`, migraciones en cada módulo |
 
-This project is a starting point for a Flutter application.
+La arquitectura (módulos, cómo agregar uno nuevo, endpoints y modelo de datos) está en
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-A few resources to get you started if this is your first Flutter project:
+## Ejecutar en local
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Requisitos: PHP 8.4+, Composer, MySQL (Homebrew), Flutter.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+./scripts/dev.sh            # levanta MySQL + API en http://<ip-de-tu-wifi>:8000
+./scripts/dev.sh --fresh    # borra la base y vuelve a cargar los datos demo
+```
+
+En otra terminal, con el celular en la misma WiFi:
+
+```bash
+flutter run --dart-define=MISKI_API_URL=http://<ip-de-tu-wifi>:8000/api/v1
+./scripts/build-apk.sh      # o genera ~/Desktop/Miski.apk apuntando a esta Mac
+```
+
+Cuentas demo (todas con la contraseña `miski1234`): `paul@miski.test`, `carlosm@miski.test`,
+`mariaq@miski.test`, `luciar@miski.test`, `diegot@miski.test`. También puedes registrarte desde la app.
+
+**Modo demo sin servidor:** si compilas sin `MISKI_API_URL`, la app usa un backend en memoria con los mismos
+datos de ejemplo (sirve para las pruebas y para mostrar la app sin conexión; nada se guarda).
+
+## Pruebas
+
+```bash
+flutter analyze && flutter test                    # app (widgets, sesión, contrato JSON)
+cd backend && php artisan test                     # API (reglas de negocio)
+dart run tool/api_smoke_test.dart                  # punta a punta contra la API corriendo (crea datos)
+```
+
+## Subir a un servidor
+
+`docker-compose.yml` levanta la API (PHP-FPM + Nginx) y MySQL. Copia `backend/.env.example` a
+`backend/.env.production` (APP_ENV=production, APP_KEY, APP_URL), define `DB_PASSWORD` y `DB_ROOT_PASSWORD`, y
+ejecuta `docker compose up -d --build`. Sirve la API con HTTPS y, cuando lo hagas, quita
+`android:usesCleartextTraffic` del `AndroidManifest.xml`.
+
+## Ramas y commits
+
+`main` (estable) · `develop` (integración) · `feature/*`. Mensajes con
+[Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`...).

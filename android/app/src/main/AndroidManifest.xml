@@ -3,7 +3,9 @@
     <application
         android:label="Miski"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
+        <!-- usesCleartextTraffic: v1 talks to the local API over http on the WiFi. Remove once the API is served over https. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

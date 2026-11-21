@@ -1,0 +1,40 @@
+# Miski on a server: API + MySQL. Not needed for local development (see scripts/dev.sh).
+#   cp backend/.env.example backend/.env.production   # set APP_KEY, APP_URL, DB_PASSWORD...
+#   docker compose up -d --build
+#   docker compose exec api php artisan db:seed --class=CatalogSeeder --force
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: miski
+      MYSQL_USER: miski
+      MYSQL_PASSWORD: ${DB_PASSWORD:?define DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?define DB_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    env_file: ./backend/.env.production
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: miski
+      DB_USERNAME: miski
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/var/www/html/storage/app/public
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads:

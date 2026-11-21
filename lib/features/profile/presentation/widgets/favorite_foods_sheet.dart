@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../social/domain/social_entities.dart';
 import '../../../social/presentation/providers/social_providers.dart';
@@ -82,9 +83,13 @@ class _FavoriteFoodsSheetState extends ConsumerState<_FavoriteFoodsSheet> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {
-                ref.read(usersProvider.notifier).setFavoriteFoods(widget.user.id, _foods);
-                Navigator.of(context).pop();
+              onPressed: () async {
+                _add(); // keeps what is still typed in the field
+                final ok = await runAction(context, () async {
+                  await ref.read(usersProvider.notifier).setFavoriteFoods(_foods);
+                  return true;
+                });
+                if (ok == true && context.mounted) Navigator.of(context).pop();
               },
               child: const Text('Guardar'),
             ),

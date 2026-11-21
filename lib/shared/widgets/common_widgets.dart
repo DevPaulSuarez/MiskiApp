@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_theme.dart';
 
-/// Network photo with a branded loading/error placeholder.
+/// Network photo (or a local file picked on this phone) with a branded loading/error placeholder.
 class RecipeImage extends StatelessWidget {
   const RecipeImage({super.key, required this.url, this.height, this.radius = AppTheme.radiusM});
 
@@ -20,6 +22,8 @@ class RecipeImage extends StatelessWidget {
         width: double.infinity,
         child: url.isEmpty
             ? const _ImagePlaceholder()
+            : !url.startsWith('http')
+            ? Image.file(File(url), fit: BoxFit.cover, errorBuilder: (_, _, _) => const _ImagePlaceholder())
             : Image.network(
                 url,
                 fit: BoxFit.cover,

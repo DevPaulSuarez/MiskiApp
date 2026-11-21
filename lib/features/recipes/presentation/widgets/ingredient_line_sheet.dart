@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/measure_unit.dart';
@@ -56,17 +57,16 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
-    final ingredientId = _editing
-        ? widget.initial!.ingredientId
-        : ref
-              .read(ingredientsProvider.notifier)
-              .findOrCreate(
-                _name,
-                () => Ingredient(id: newId('i'), name: _name.trim(), category: 'Otros', defaultUnit: _unit),
-              )
-              .id;
+    final String ingredientId;
+    if (_editing) {
+      ingredientId = widget.initial!.ingredientId;
+    } else {
+      final found = await runAction(context, () => ref.read(ingredientsProvider.notifier).findOrCreate(_name, _unit));
+      if (found == null || !mounted) return;
+      ingredientId = found.id;
+    }
     final price = double.tryParse(_price.text.replaceAll(',', '.'));
     final buyQty = double.tryParse(_buyQty.text.replaceAll(',', '.'));
     Navigator.pop(

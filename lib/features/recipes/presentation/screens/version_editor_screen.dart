@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import '../../../social/presentation/providers/social_providers.dart';
+import '../../data/recipe_data_providers.dart';
 import '../../domain/entities/recipe.dart';
+import '../../domain/repositories/recipe_repository.dart';
 import '../../domain/services/dish_matcher.dart';
 import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
@@ -42,8 +46,11 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
   // Recipe-level fields (only for new recipes)
   final _name = TextEditingController();
   final _description = TextEditingController();
-  String _categoryId = 'c3';
+  late String _categoryId = _defaultCategory();
   String _photo = _presetPhotos.first;
+
+  /// A photo taken or picked on this phone; uploaded when the recipe is published.
+  String? _localPhoto;
 
   // Version fields
   final _title = TextEditingController();
@@ -72,6 +79,42 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       _difficulty = p.difficulty;
       _ingredients = [...p.ingredients];
       _steps = [...p.steps];
+    }
+  }
+
+  String _defaultCategory() {
+    final cats = ref.read(categoriesProvider);
+    return (cats.where((c) => c.name == 'Platos principales').firstOrNull ?? cats.firstOrNull)?.id ?? '';
+  }
+
+  Future<void> _pickPhoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded),
+              title: const Text('Tomar foto'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: const Text('Elegir de la galería'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null) return;
+    try {
+      final file = await ImagePicker().pickImage(source: source, maxWidth: 1600, imageQuality: 85);
+      if (file != null) setState(() => _localPhoto = file.path);
+    } catch (_) {
+      if (mounted) _error('No pudimos abrir la cámara o la galería. Revisa los permisos de Miski.');
     }
   }
 
@@ -104,7 +147,7 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
     }
 
     if (!_isNewRecipe) {
-      _publish(target: ref.read(recipeByIdProvider(_parent!.recipeId)), parent: _parent);
+      await _publish(target: ref.read(recipeByIdProvider(_parent!.recipeId)), parent: _parent);
       return;
     }
 
@@ -117,11 +160,11 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       final asVersion = await _askSameDish(match);
       if (!mounted || asVersion == null) return;
       if (asVersion) {
-        _publish(target: match.recipe, parent: match.version);
+        await _publish(target: match.recipe, parent: match.version);
         return;
       }
     }
-    _publish();
+    await _publish();
   }
 
   Future<bool?> _askSameDish(DishMatch match) {
@@ -146,26 +189,12 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
   }
 
   /// Saves a new dish (when [target] is null) or a new version of [target] built from [parent].
-  void _publish({Recipe? target, RecipeVersion? parent}) {
-    final me = ref.read(currentUserIdProvider);
-    final versions = ref.read(versionsProvider.notifier);
+  Future<void> _publish({Recipe? target, RecipeVersion? parent}) async {
     final isNewDish = target == null;
-    final recipeId = target?.id ?? newId('r');
-    final number = isNewDish ? 1 : versions.nextNumber(recipeId);
     final typedTitle = _title.text.trim();
-    final version = RecipeVersion(
-      id: newId('v'),
-      recipeId: recipeId,
-      number: number,
-      title: typedTitle.isNotEmpty
-          ? typedTitle
-          : isNewDish
-          ? 'Versión original'
-          // Merged from the "new recipe" form: the name they typed describes their version.
-          : (_isNewRecipe ? _name.text.trim() : 'Versión $number'),
-      parentVersionId: parent?.id,
-      createdBy: me,
-      createdAt: DateTime.now(),
+    final draft = VersionDraft(
+      // Merged from the "new recipe" form: the name they typed describes their version.
+      title: typedTitle.isNotEmpty ? typedTitle : (!isNewDish && _isNewRecipe ? _name.text.trim() : ''),
       servings: _servings,
       prepMinutes: _prep,
       cookMinutes: _cook,
@@ -175,52 +204,35 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
       notes: _notes.text.trim(),
     );
 
-    if (isNewDish) {
-      ref
+    final version = await runAction(context, () async {
+      if (!isNewDish) return ref.read(versionsProvider.notifier).add(target.id, parent!.id, draft);
+      final photo = _localPhoto == null ? _photo : await ref.read(recipeRepositoryProvider).uploadImage(_localPhoto!);
+      return ref
           .read(recipesProvider.notifier)
-          .save(
-            Recipe(
-              id: recipeId,
+          .createDish(
+            DishDraft(
               name: _name.text.trim(),
               description: _description.text.trim(),
-              imageUrl: _photo,
+              imageUrl: photo,
               categoryId: _categoryId,
-              authorId: me,
-              createdAt: DateTime.now(),
-              mainVersionId: version.id,
             ),
+            draft,
           );
-    }
-    versions.add(version);
+    });
+    if (version == null || !mounted) return;
 
-    final notifications = ref.read(notificationsProvider.notifier);
-    if (target != null && target.authorId != me) {
+    final me = ref.read(currentUserIdProvider);
+    final String message;
+    if (isNewDish) {
+      message = 'Receta creada';
+    } else if (target.authorId != me) {
       // My way of preparing someone else's dish: it stays in their dish under my
       // name, and the author is told which ingredients I added or removed.
-      final changes = ref
-          .read(versionComparatorProvider)
-          .ingredientChanges(parent!, version, (id) => ref.read(ingredientByIdProvider(id))?.name ?? id);
-      final myName = ref.read(userByIdProvider(me)).firstName;
-      notifications.push(
-        '$myName preparó tu plato a su manera',
-        '${target.name} · V$number — ${changes.describe()}',
-        route: '/version/${version.id}',
-        toUserId: target.authorId,
-      );
-      final authorName = ref.read(userByIdProvider(target.authorId)).firstName;
-      notifications.push(
-        'Preparación publicada',
-        'Tu versión de "${target.name}" (V$number) ya aparece con tu nombre en el plato de $authorName.',
-        route: '/version/${version.id}',
-      );
+      message = 'Tu versión V${version.number} ya aparece con tu nombre en el plato';
     } else {
-      notifications.push(
-        isNewDish ? 'Receta creada' : 'Nueva versión publicada',
-        isNewDish ? '"${_name.text.trim()}" ya está en tu recetario.' : 'Publicaste la V$number.',
-        route: '/version/${version.id}',
-      );
+      message = 'Versión V${version.number} creada';
     }
-    showSuccess(context, isNewDish ? 'Receta creada' : 'Versión V$number creada');
+    showSuccess(context, message);
     context.pushReplacement('/version/${version.id}');
   }
 
@@ -292,12 +304,17 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
             height: 84,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _presetPhotos.length,
+              itemCount: _presetPhotos.length + 1,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (_, i) {
-                final selected = _photo == _presetPhotos[i];
+              itemBuilder: (_, index) {
+                if (index == 0) return _OwnPhotoTile(path: _localPhoto, onTap: _pickPhoto);
+                final i = index - 1;
+                final selected = _localPhoto == null && _photo == _presetPhotos[i];
                 return GestureDetector(
-                  onTap: () => setState(() => _photo = _presetPhotos[i]),
+                  onTap: () => setState(() {
+                    _photo = _presetPhotos[i];
+                    _localPhoto = null;
+                  }),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     width: 84,
@@ -648,5 +665,38 @@ class _SimilarDishesHint extends ConsumerWidget {
         ],
       );
     },
+  );
+}
+
+/// First tile of the photo row: take or pick your own photo.
+class _OwnPhotoTile extends StatelessWidget {
+  const _OwnPhotoTile({required this.path, required this.onTap});
+  final String? path;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      width: 84,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: path != null ? AppColors.accent : Colors.transparent, width: 3),
+      ),
+      child: path != null
+          ? RecipeImage(url: path!, radius: 10)
+          : Container(
+              decoration: BoxDecoration(color: AppColors.surfaceHigh, borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_a_photo_rounded, color: AppColors.accent),
+                  const SizedBox(height: 4),
+                  Text('Tu foto', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                ],
+              ),
+            ),
+    ),
   );
 }

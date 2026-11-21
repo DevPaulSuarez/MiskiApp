@@ -19,8 +19,9 @@ class AppUser {
   /// public profile so friends can surprise them on their birthday.
   final List<String> favoriteFoods;
 
-  String get initials => name.split(' ').take(2).map((p) => p[0]).join().toUpperCase();
-  String get firstName => name.split(' ').first;
+  List<String> get _words => name.split(' ').where((w) => w.isNotEmpty).toList();
+  String get initials => _words.take(2).map((p) => p[0]).join().toUpperCase();
+  String get firstName => _words.firstOrNull ?? name;
 
   /// Days from [today] until the next birthday (0 = today), or null if unknown.
   int? daysUntilBirthday(DateTime today) {

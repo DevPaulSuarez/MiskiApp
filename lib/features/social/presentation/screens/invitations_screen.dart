@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
@@ -140,20 +141,22 @@ class _InvitationCard extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          notifier.setStatus(inv.id, InvitationStatus.rejected);
-                          showSuccess(context, 'Invitación rechazada');
-                        },
+                        onPressed: () => runAction(
+                          context,
+                          () => notifier.answer(inv.id, accept: false),
+                          success: 'Invitación rechazada',
+                        ),
                         child: const Text('Rechazar'),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: FilledButton(
-                        onPressed: () {
-                          notifier.setStatus(inv.id, InvitationStatus.accepted);
-                          showSuccess(context, '¡Aceptada! Cuando lo pruebes podrás calificarlo.');
-                        },
+                        onPressed: () => runAction(
+                          context,
+                          () => notifier.answer(inv.id, accept: true),
+                          success: '¡Aceptada! Cuando lo pruebes podrás calificarlo.',
+                        ),
                         child: const Text('Aceptar'),
                       ),
                     ),

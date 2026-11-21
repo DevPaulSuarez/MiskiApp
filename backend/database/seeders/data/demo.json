@@ -1,0 +1,1467 @@
+{
+  "users": [
+    {
+      "key": "u1",
+      "name": "Paul Suárez",
+      "handle": "paul",
+      "bio": "Cocinero de fin de semana. Fan del ceviche.",
+      "birthday": "1995-03-18",
+      "favorite_category_keys": [
+        "c1",
+        "c3",
+        "c6"
+      ],
+      "favorite_foods": [
+        "Ceviche",
+        "Lomo saltado",
+        "Picarones"
+      ]
+    },
+    {
+      "key": "u2",
+      "name": "Carlos Mendoza",
+      "handle": "carlosm",
+      "bio": "Chef de cocina marina.",
+      "birthday": "1988-07-02",
+      "favorite_category_keys": [
+        "c3"
+      ],
+      "favorite_foods": [
+        "Arroz con mariscos",
+        "Tiradito"
+      ]
+    },
+    {
+      "key": "u3",
+      "name": "María Quispe",
+      "handle": "mariaq",
+      "bio": "Repostera y viajera.",
+      "birthday": "1992-12-09",
+      "favorite_category_keys": [
+        "c4",
+        "c5"
+      ],
+      "favorite_foods": [
+        "Torta de chocolate",
+        "Suspiro limeño",
+        "Chicha morada"
+      ]
+    },
+    {
+      "key": "u4",
+      "name": "Lucía Ramos",
+      "handle": "luciar",
+      "bio": "Siempre lista para probar.",
+      "birthday": "1999-05-27",
+      "favorite_category_keys": [],
+      "favorite_foods": [
+        "Ají de gallina"
+      ]
+    },
+    {
+      "key": "u5",
+      "name": "Diego Torres",
+      "handle": "diegot",
+      "bio": "Parrillero oficial.",
+      "birthday": "1990-10-14",
+      "favorite_category_keys": [
+        "c3",
+        "c8"
+      ],
+      "favorite_foods": [
+        "Anticuchos",
+        "Pachamanca"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "key": "c1",
+      "name": "Entradas",
+      "emoji": "🥟"
+    },
+    {
+      "key": "c2",
+      "name": "Sopas",
+      "emoji": "🍲"
+    },
+    {
+      "key": "c3",
+      "name": "Platos principales",
+      "emoji": "🍽️"
+    },
+    {
+      "key": "c4",
+      "name": "Postres",
+      "emoji": "🍰"
+    },
+    {
+      "key": "c5",
+      "name": "Bebidas",
+      "emoji": "🥤"
+    },
+    {
+      "key": "c6",
+      "name": "Ensaladas",
+      "emoji": "🥗"
+    },
+    {
+      "key": "c7",
+      "name": "Desayunos",
+      "emoji": "🥞"
+    },
+    {
+      "key": "c8",
+      "name": "Acompañamientos",
+      "emoji": "🌽"
+    },
+    {
+      "key": "c9",
+      "name": "Snacks",
+      "emoji": "🍿"
+    }
+  ],
+  "ingredients": [
+    {
+      "key": "i1",
+      "name": "Filete de tilapia",
+      "category": "Pescados",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i2",
+      "name": "Limón",
+      "category": "Frutas",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i3",
+      "name": "Cebolla roja",
+      "category": "Verduras",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i4",
+      "name": "Ají limo",
+      "category": "Verduras",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i5",
+      "name": "Culantro",
+      "category": "Hierbas",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i6",
+      "name": "Sal",
+      "category": "Condimentos",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i7",
+      "name": "Camote",
+      "category": "Verduras",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i8",
+      "name": "Choclo",
+      "category": "Verduras",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i9",
+      "name": "Kion (jengibre)",
+      "category": "Verduras",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i10",
+      "name": "Rocoto",
+      "category": "Verduras",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i11",
+      "name": "Apio",
+      "category": "Verduras",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i12",
+      "name": "Cancha serrana",
+      "category": "Granos",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i13",
+      "name": "Quinua",
+      "category": "Granos",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i14",
+      "name": "Tomate cherry",
+      "category": "Verduras",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i15",
+      "name": "Aceite de oliva",
+      "category": "Aceites",
+      "default_unit": "tablespoon",
+      "description": ""
+    },
+    {
+      "key": "i16",
+      "name": "Harina",
+      "category": "Harinas",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i17",
+      "name": "Huevo",
+      "category": "Lácteos y huevos",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i18",
+      "name": "Leche",
+      "category": "Lácteos y huevos",
+      "default_unit": "milliliter",
+      "description": ""
+    },
+    {
+      "key": "i19",
+      "name": "Chocolate bitter",
+      "category": "Dulces",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i20",
+      "name": "Salmón",
+      "category": "Pescados",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i21",
+      "name": "Lechuga",
+      "category": "Verduras",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i22",
+      "name": "Miel",
+      "category": "Dulces",
+      "default_unit": "tablespoon",
+      "description": ""
+    },
+    {
+      "key": "i23",
+      "name": "Naranja",
+      "category": "Frutas",
+      "default_unit": "unit",
+      "description": ""
+    },
+    {
+      "key": "i24",
+      "name": "Queso mozzarella",
+      "category": "Lácteos y huevos",
+      "default_unit": "gram",
+      "description": ""
+    },
+    {
+      "key": "i25",
+      "name": "Helado de vainilla",
+      "category": "Dulces",
+      "default_unit": "milliliter",
+      "description": ""
+    }
+  ],
+  "recipes": [
+    {
+      "key": "r1",
+      "name": "Ceviche peruano de tilapia",
+      "description": "Pescado fresco curado en limón, con cebolla roja, ají limo y culantro. Servido con camote y choclo, como en las cebicherías de Lima.",
+      "image_url": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c3",
+      "author_key": "u1",
+      "created_at": "2026-09-02T06:00:00.000Z",
+      "main_version_key": "v2",
+      "status": "active"
+    },
+    {
+      "key": "r2",
+      "name": "Ensalada andina de quinua",
+      "description": "Quinua graneada con tomates cherry, hierbas y un aliño cítrico.",
+      "image_url": "https://images.unsplash.com/photo-1547592180-85f173990554?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c6",
+      "author_key": "u3",
+      "created_at": "2026-10-01T06:00:00.000Z",
+      "main_version_key": "v4",
+      "status": "active"
+    },
+    {
+      "key": "r3",
+      "name": "Bowl de salmón y verduras",
+      "description": "Salmón dorado sobre verduras frescas, huevo y quinua.",
+      "image_url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c3",
+      "author_key": "u2",
+      "created_at": "2026-10-12T06:00:00.000Z",
+      "main_version_key": "v5",
+      "status": "active"
+    },
+    {
+      "key": "r4",
+      "name": "Pancakes con miel",
+      "description": "Torre de pancakes esponjosos con miel de abeja.",
+      "image_url": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c7",
+      "author_key": "u4",
+      "created_at": "2026-10-20T06:00:00.000Z",
+      "main_version_key": "v6",
+      "status": "active"
+    },
+    {
+      "key": "r5",
+      "name": "Copa de chocolate",
+      "description": "Capas de mousse de chocolate bitter y crema.",
+      "image_url": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c4",
+      "author_key": "u3",
+      "created_at": "2026-11-02T07:00:00.000Z",
+      "main_version_key": "v7",
+      "status": "active"
+    },
+    {
+      "key": "r6",
+      "name": "Ensalada fresca de naranja",
+      "description": "Hojas verdes, cebolla morada y gajos de naranja.",
+      "image_url": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c6",
+      "author_key": "u5",
+      "created_at": "2026-11-08T07:00:00.000Z",
+      "main_version_key": "v8",
+      "status": "active"
+    },
+    {
+      "key": "r7",
+      "name": "Helado con fudge y caramelo",
+      "description": "Helado de vainilla con brownie y salsa de caramelo.",
+      "image_url": "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c4",
+      "author_key": "u1",
+      "created_at": "2026-11-10T07:00:00.000Z",
+      "main_version_key": "v9",
+      "status": "active"
+    },
+    {
+      "key": "r8",
+      "name": "Pizza casera de pollo",
+      "description": "Masa delgada, mozzarella y pollo a la parrilla.",
+      "image_url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=900&q=80&auto=format&fit=crop",
+      "category_key": "c9",
+      "author_key": "u5",
+      "created_at": "2026-11-12T07:00:00.000Z",
+      "main_version_key": "v10",
+      "status": "active"
+    }
+  ],
+  "versions": [
+    {
+      "key": "v1",
+      "recipe_key": "r1",
+      "number": 1,
+      "title": "Ceviche tradicional",
+      "parent_key": null,
+      "created_by_key": "u1",
+      "created_at": "2026-09-02T06:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 25,
+      "cook_minutes": 0,
+      "difficulty": "medium",
+      "notes": "La receta clásica de la casa.",
+      "ingredients": [
+        {
+          "ingredient_key": "i1",
+          "quantity": 500.0,
+          "unit": "gram",
+          "note": "Fresco, en cubos de 2 cm",
+          "purchase": {
+            "price": 12.0,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i2",
+          "quantity": 10.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 50.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i3",
+          "quantity": 200.0,
+          "unit": "gram",
+          "note": "En pluma fina",
+          "purchase": {
+            "price": 1.8,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i4",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 1.5,
+            "quantity": 10.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i5",
+          "quantity": 10.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.8,
+            "quantity": 100.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i6",
+          "quantity": 5.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.6,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i7",
+          "quantity": 300.0,
+          "unit": "gram",
+          "note": "Sancochado",
+          "purchase": {
+            "price": 1.5,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i8",
+          "quantity": 1.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 0.8,
+            "quantity": 1.0,
+            "unit": "unit"
+          }
+        }
+      ],
+      "steps": [
+        "Cortar la tilapia en cubos de 2 cm y mantener en frío.",
+        "Cortar la cebolla en pluma y lavarla con agua fría.",
+        "Exprimir los limones sin presionar demasiado para evitar el amargor.",
+        "Sazonar el pescado con sal y ají limo picado.",
+        "Agregar el jugo de limón y mezclar; dejar reposar 5 minutos.",
+        "Añadir la cebolla y el culantro picado.",
+        "Servir con camote y choclo."
+      ]
+    },
+    {
+      "key": "v2",
+      "recipe_key": "r1",
+      "number": 2,
+      "title": "Más limón, menos cebolla",
+      "parent_key": "v1",
+      "created_by_key": "u2",
+      "created_at": "2026-09-20T06:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "difficulty": "medium",
+      "notes": "Más ácido y menos picante de cebolla. Marinado más corto.",
+      "ingredients": [
+        {
+          "ingredient_key": "i1",
+          "quantity": 500.0,
+          "unit": "gram",
+          "note": "Fresco, en cubos de 2 cm",
+          "purchase": {
+            "price": 12.0,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i2",
+          "quantity": 14.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 50.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i3",
+          "quantity": 120.0,
+          "unit": "gram",
+          "note": "En pluma muy fina",
+          "purchase": {
+            "price": 1.8,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i4",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 1.5,
+            "quantity": 10.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i5",
+          "quantity": 10.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.8,
+            "quantity": 100.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i6",
+          "quantity": 5.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.6,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i7",
+          "quantity": 300.0,
+          "unit": "gram",
+          "note": "Sancochado",
+          "purchase": {
+            "price": 1.5,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i8",
+          "quantity": 1.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 0.8,
+            "quantity": 1.0,
+            "unit": "unit"
+          }
+        }
+      ],
+      "steps": [
+        "Cortar la tilapia en cubos de 2 cm y mantener en frío.",
+        "Cortar la cebolla en pluma y lavarla con agua fría.",
+        "Exprimir los limones sin presionar demasiado para evitar el amargor.",
+        "Sazonar el pescado con sal y ají limo picado.",
+        "Agregar el jugo de limón y mezclar; dejar reposar solo 3 minutos.",
+        "Añadir la cebolla y el culantro picado.",
+        "Servir con camote y choclo."
+      ]
+    },
+    {
+      "key": "v3",
+      "recipe_key": "r1",
+      "number": 3,
+      "title": "Leche de tigre con rocoto y kion",
+      "parent_key": "v2",
+      "created_by_key": "u3",
+      "created_at": "2026-10-15T06:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "difficulty": "hard",
+      "notes": "Primero se prepara la leche de tigre y luego se cura el pescado. Sin choclo; con cancha.",
+      "ingredients": [
+        {
+          "ingredient_key": "i1",
+          "quantity": 500.0,
+          "unit": "gram",
+          "note": "Fresco, en cubos de 2 cm",
+          "purchase": {
+            "price": 12.0,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i2",
+          "quantity": 14.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 50.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i3",
+          "quantity": 120.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 1.8,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i10",
+          "quantity": 1.0,
+          "unit": "unit",
+          "note": "Sin venas",
+          "purchase": {
+            "price": 2.0,
+            "quantity": 4.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i9",
+          "quantity": 10.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 3.0,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i11",
+          "quantity": 20.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 1.2,
+            "quantity": 500.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i5",
+          "quantity": 15.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.8,
+            "quantity": 100.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i6",
+          "quantity": 5.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 0.6,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i7",
+          "quantity": 300.0,
+          "unit": "gram",
+          "note": "Sancochado",
+          "purchase": {
+            "price": 1.5,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i12",
+          "quantity": 60.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 2.5,
+            "quantity": 500.0,
+            "unit": "gram"
+          }
+        }
+      ],
+      "steps": [
+        "Cortar la cebolla en pluma y lavarla con agua fría.",
+        "Licuar kion, apio, un trozo de pescado y parte del jugo de limón: esa es la leche de tigre.",
+        "Cortar la tilapia en cubos de 2 cm y mantener en frío.",
+        "Sazonar el pescado con sal y rocoto picado.",
+        "Bañar el pescado con la leche de tigre y el resto del limón; reposar 3 minutos.",
+        "Añadir la cebolla y el culantro picado.",
+        "Servir con camote y cancha serrana."
+      ]
+    },
+    {
+      "key": "v4",
+      "recipe_key": "r2",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u3",
+      "created_at": "2026-10-01T06:00:00.000Z",
+      "servings": 4,
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "difficulty": "easy",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i13",
+          "quantity": 200.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 4.0,
+            "quantity": 500.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i14",
+          "quantity": 250.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 3.0,
+            "quantity": 500.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i15",
+          "quantity": 3.0,
+          "unit": "tablespoon",
+          "note": "",
+          "purchase": {
+            "price": 9.0,
+            "quantity": 500.0,
+            "unit": "milliliter"
+          }
+        },
+        {
+          "ingredient_key": "i2",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 50.0,
+            "unit": "unit"
+          }
+        }
+      ],
+      "steps": [
+        "Lavar y cocinar la quinua 15 minutos.",
+        "Cortar los tomates por la mitad.",
+        "Mezclar todo y aliñar con limón y aceite."
+      ]
+    },
+    {
+      "key": "v5",
+      "recipe_key": "r3",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u2",
+      "created_at": "2026-10-12T06:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 15,
+      "cook_minutes": 12,
+      "difficulty": "medium",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i20",
+          "quantity": 300.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 28.0,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i13",
+          "quantity": 120.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 4.0,
+            "quantity": 500.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i17",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 3.6,
+            "quantity": 12.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i21",
+          "quantity": 1.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 1.0,
+            "quantity": 1.0,
+            "unit": "unit"
+          }
+        }
+      ],
+      "steps": [
+        "Cocinar la quinua.",
+        "Dorar el salmón 4 minutos por lado.",
+        "Armar el bowl con verduras y huevo."
+      ]
+    },
+    {
+      "key": "v6",
+      "recipe_key": "r4",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u4",
+      "created_at": "2026-10-20T06:00:00.000Z",
+      "servings": 4,
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "difficulty": "easy",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i16",
+          "quantity": 250.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 1.4,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i17",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 3.6,
+            "quantity": 12.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i18",
+          "quantity": 300.0,
+          "unit": "milliliter",
+          "note": "",
+          "purchase": {
+            "price": 1.1,
+            "quantity": 1.0,
+            "unit": "liter"
+          }
+        },
+        {
+          "ingredient_key": "i22",
+          "quantity": 4.0,
+          "unit": "tablespoon",
+          "note": "",
+          "purchase": {
+            "price": 6.0,
+            "quantity": 500.0,
+            "unit": "milliliter"
+          }
+        }
+      ],
+      "steps": [
+        "Mezclar harina, huevos y leche.",
+        "Cocinar en sartén caliente.",
+        "Servir con miel."
+      ]
+    },
+    {
+      "key": "v7",
+      "recipe_key": "r5",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u3",
+      "created_at": "2026-11-02T07:00:00.000Z",
+      "servings": 4,
+      "prep_minutes": 25,
+      "cook_minutes": 5,
+      "difficulty": "medium",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i19",
+          "quantity": 200.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 250.0,
+            "unit": "gram"
+          }
+        },
+        {
+          "ingredient_key": "i18",
+          "quantity": 250.0,
+          "unit": "milliliter",
+          "note": "",
+          "purchase": {
+            "price": 1.1,
+            "quantity": 1.0,
+            "unit": "liter"
+          }
+        }
+      ],
+      "steps": [
+        "Derretir el chocolate.",
+        "Incorporar la leche caliente.",
+        "Refrigerar 3 horas en copas."
+      ]
+    },
+    {
+      "key": "v8",
+      "recipe_key": "r6",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u5",
+      "created_at": "2026-11-08T07:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "difficulty": "easy",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i21",
+          "quantity": 1.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 1.0,
+            "quantity": 1.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i23",
+          "quantity": 2.0,
+          "unit": "unit",
+          "note": "",
+          "purchase": {
+            "price": 2.0,
+            "quantity": 6.0,
+            "unit": "unit"
+          }
+        },
+        {
+          "ingredient_key": "i3",
+          "quantity": 50.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 1.8,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        }
+      ],
+      "steps": [
+        "Lavar las hojas.",
+        "Pelar la naranja en gajos.",
+        "Mezclar y aliñar."
+      ]
+    },
+    {
+      "key": "v9",
+      "recipe_key": "r7",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u1",
+      "created_at": "2026-11-10T07:00:00.000Z",
+      "servings": 2,
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "difficulty": "easy",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i25",
+          "quantity": 300.0,
+          "unit": "milliliter",
+          "note": "",
+          "purchase": {
+            "price": 6.0,
+            "quantity": 1.0,
+            "unit": "liter"
+          }
+        },
+        {
+          "ingredient_key": "i19",
+          "quantity": 50.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 5.0,
+            "quantity": 250.0,
+            "unit": "gram"
+          }
+        }
+      ],
+      "steps": [
+        "Servir el helado sobre el brownie.",
+        "Bañar con caramelo y fudge."
+      ]
+    },
+    {
+      "key": "v10",
+      "recipe_key": "r8",
+      "number": 1,
+      "title": "Versión original",
+      "parent_key": null,
+      "created_by_key": "u5",
+      "created_at": "2026-11-12T07:00:00.000Z",
+      "servings": 4,
+      "prep_minutes": 30,
+      "cook_minutes": 15,
+      "difficulty": "medium",
+      "notes": "",
+      "ingredients": [
+        {
+          "ingredient_key": "i16",
+          "quantity": 300.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 1.4,
+            "quantity": 1.0,
+            "unit": "kilogram"
+          }
+        },
+        {
+          "ingredient_key": "i24",
+          "quantity": 200.0,
+          "unit": "gram",
+          "note": "",
+          "purchase": {
+            "price": 4.5,
+            "quantity": 250.0,
+            "unit": "gram"
+          }
+        }
+      ],
+      "steps": [
+        "Preparar la masa y dejar reposar.",
+        "Estirar, cubrir y hornear 15 minutos."
+      ]
+    }
+  ],
+  "invitations": [
+    {
+      "key": "inv1",
+      "recipe_key": "r1",
+      "version_key": "v1",
+      "from_key": "u1",
+      "to_key": "u4",
+      "message": "¡Ven a probar el ceviche clásico!",
+      "status": "completed",
+      "created_at": "2026-09-05T06:00:00.000Z"
+    },
+    {
+      "key": "inv2",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "from_key": "u1",
+      "to_key": "u5",
+      "message": "Probemos la versión de Carlos el sábado.",
+      "status": "pending",
+      "created_at": "2026-11-14T07:00:00.000Z"
+    },
+    {
+      "key": "inv3",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "from_key": "u1",
+      "to_key": "u2",
+      "message": "",
+      "status": "accepted",
+      "created_at": "2026-11-13T07:00:00.000Z"
+    },
+    {
+      "key": "inv4",
+      "recipe_key": "r1",
+      "version_key": "v3",
+      "from_key": "u3",
+      "to_key": "u1",
+      "message": "Hice mi versión con leche de tigre. ¿Te animas?",
+      "status": "pending",
+      "created_at": "2026-11-15T07:00:00.000Z"
+    },
+    {
+      "key": "inv5",
+      "recipe_key": "r3",
+      "version_key": "v5",
+      "from_key": "u2",
+      "to_key": "u1",
+      "message": "Bowl de salmón para el almuerzo.",
+      "status": "accepted",
+      "created_at": "2026-11-12T07:00:00.000Z"
+    }
+  ],
+  "ratings": [
+    {
+      "user_key": "u4",
+      "recipe_key": "r1",
+      "version_key": "v1",
+      "invitation_key": "inv1",
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 4,
+      "ease": 4,
+      "value": 5,
+      "comment": "Muy rico, aunque la cebolla se sentía mucho.",
+      "created_at": "2026-09-06T06:00:00.000Z"
+    },
+    {
+      "user_key": "u2",
+      "recipe_key": "r1",
+      "version_key": "v1",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 3,
+      "ease": 4,
+      "value": 4,
+      "comment": "Buen punto de limón.",
+      "created_at": "2026-09-08T06:00:00.000Z"
+    },
+    {
+      "user_key": "u3",
+      "recipe_key": "r1",
+      "version_key": "v1",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 4,
+      "ease": 4,
+      "value": 5,
+      "comment": "",
+      "created_at": "2026-09-09T06:00:00.000Z"
+    },
+    {
+      "user_key": "u5",
+      "recipe_key": "r1",
+      "version_key": "v1",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 4,
+      "ease": 5,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-09-10T06:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 4,
+      "ease": 4,
+      "value": 5,
+      "comment": "La mejor versión hasta ahora.",
+      "created_at": "2026-09-22T06:00:00.000Z"
+    },
+    {
+      "user_key": "u3",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 5,
+      "presentation": 4,
+      "ease": 4,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-09-23T06:00:00.000Z"
+    },
+    {
+      "user_key": "u4",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 5,
+      "ease": 4,
+      "value": 5,
+      "comment": "Perfecto de ácido.",
+      "created_at": "2026-09-25T06:00:00.000Z"
+    },
+    {
+      "user_key": "u5",
+      "recipe_key": "r1",
+      "version_key": "v2",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 4,
+      "ease": 5,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-09-28T06:00:00.000Z"
+    },
+    {
+      "user_key": "u2",
+      "recipe_key": "r1",
+      "version_key": "v3",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 5,
+      "ease": 3,
+      "value": 4,
+      "comment": "La leche de tigre es otro nivel.",
+      "created_at": "2026-10-16T06:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "recipe_key": "r2",
+      "version_key": "v4",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 5,
+      "ease": 5,
+      "value": 5,
+      "comment": "",
+      "created_at": "2026-10-03T06:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "recipe_key": "r5",
+      "version_key": "v7",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 5,
+      "ease": 4,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-11-03T07:00:00.000Z"
+    },
+    {
+      "user_key": "u4",
+      "recipe_key": "r7",
+      "version_key": "v9",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 5,
+      "ease": 5,
+      "value": 5,
+      "comment": "Postre perfecto para la noche.",
+      "created_at": "2026-11-18T23:21:48.966113Z"
+    },
+    {
+      "user_key": "u2",
+      "recipe_key": "r7",
+      "version_key": "v9",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 4,
+      "ease": 5,
+      "value": 5,
+      "comment": "",
+      "created_at": "2026-11-19T23:21:48.966466Z"
+    },
+    {
+      "user_key": "u3",
+      "recipe_key": "r8",
+      "version_key": "v10",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 4,
+      "ease": 3,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-11-17T23:21:48.966473Z"
+    },
+    {
+      "user_key": "u4",
+      "recipe_key": "r8",
+      "version_key": "v10",
+      "invitation_key": null,
+      "stars": 5,
+      "flavor": 5,
+      "presentation": 4,
+      "ease": 4,
+      "value": 5,
+      "comment": "",
+      "created_at": "2026-11-20T23:21:48.966474Z"
+    },
+    {
+      "user_key": "u2",
+      "recipe_key": "r6",
+      "version_key": "v8",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 5,
+      "ease": 5,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-11-16T23:21:48.966475Z"
+    },
+    {
+      "user_key": "u5",
+      "recipe_key": "r5",
+      "version_key": "v7",
+      "invitation_key": null,
+      "stars": 4,
+      "flavor": 4,
+      "presentation": 4,
+      "ease": 3,
+      "value": 4,
+      "comment": "",
+      "created_at": "2026-11-19T23:21:48.966476Z"
+    }
+  ],
+  "comments": [
+    {
+      "user_key": "u2",
+      "version_key": "v1",
+      "text": "Prueba lavar la cebolla con hielo, queda más crocante.",
+      "created_at": "2026-09-07T06:00:00.000Z"
+    },
+    {
+      "user_key": "u4",
+      "version_key": "v2",
+      "text": "¿Con limón sutil o limón Tahití?",
+      "created_at": "2026-09-26T06:00:00.000Z"
+    },
+    {
+      "user_key": "u2",
+      "version_key": "v2",
+      "text": "Sutil siempre 🍋",
+      "created_at": "2026-09-26T18:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "version_key": "v3",
+      "text": "Me encanta la idea de la cancha en lugar del choclo.",
+      "created_at": "2026-10-16T06:00:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "user_key": "u1",
+      "title": "Nueva invitación",
+      "body": "María te invitó a probar \"Ceviche · V3\".",
+      "route": "/invitations",
+      "read": false,
+      "created_at": "2026-11-15T07:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "title": "María preparó tu plato a su manera",
+      "body": "Ceviche · V3 — Agregó: Rocoto, Kion (jengibre), Apio, Cancha serrana · Quitó: Ají limo, Choclo",
+      "route": "/recipe/r1/versions",
+      "read": false,
+      "created_at": "2026-10-15T06:00:00.000Z"
+    },
+    {
+      "user_key": "u1",
+      "title": "Nueva calificación",
+      "body": "Lucía calificó tu ceviche con 4 estrellas.",
+      "route": "/version/v1",
+      "read": true,
+      "created_at": "2026-09-06T06:00:00.000Z"
+    }
+  ],
+  "favorites": [
+    {
+      "user_key": "u1",
+      "recipe_key": "r1"
+    },
+    {
+      "user_key": "u1",
+      "recipe_key": "r5"
+    }
+  ]
+}

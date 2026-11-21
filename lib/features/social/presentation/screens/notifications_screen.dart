@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/common_widgets.dart';
@@ -19,7 +20,7 @@ class NotificationsScreen extends ConsumerWidget {
         title: const Text('Notificaciones'),
         actions: [
           if (items.any((n) => !n.read))
-            TextButton(onPressed: notifier.markAllRead, child: const Text('Marcar leídas')),
+            TextButton(onPressed: () => runQuietly(context, notifier.markAllRead), child: const Text('Marcar leídas')),
         ],
       ),
       body: items.isEmpty
@@ -47,7 +48,7 @@ class NotificationsScreen extends ConsumerWidget {
                   subtitle: Text('${n.body}\n${Fmt.relative(n.createdAt)}'),
                   isThreeLine: true,
                   onTap: () {
-                    notifier.markRead(n.id);
+                    if (!n.read) runQuietly(context, () => notifier.markRead(n.id));
                     final route = n.route;
                     if (route == null) return;
                     // Tab routes switch tabs; detail routes are pushed.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import '../../../recipes/presentation/providers/recipe_providers.dart';
@@ -26,25 +27,15 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
     super.dispose();
   }
 
-  void _send() {
-    final version = ref.read(versionByIdProvider(widget.versionId))!;
-    ref
-        .read(invitationsProvider.notifier)
-        .send(
-          recipeId: version.recipeId,
-          versionId: version.id,
-          toUserIds: _selected.toList(),
-          message: _message.text.trim(),
-        );
-    ref
-        .read(notificationsProvider.notifier)
-        .push(
-          'Invitaciones enviadas',
-          'Invitaste a ${_selected.length} persona${_selected.length > 1 ? 's' : ''} a probar la V${version.number}.',
-          route: '/invitations',
-        );
-    showSuccess(context, 'Invitaciones enviadas');
-    context.pop();
+  Future<void> _send() async {
+    final n = _selected.length;
+    final ok = await runAction(context, () async {
+      await ref
+          .read(invitationsProvider.notifier)
+          .send(versionId: widget.versionId, toUserIds: _selected.toList(), message: _message.text.trim());
+      return true;
+    }, success: 'Invitaste a $n persona${n > 1 ? 's' : ''}');
+    if (ok == true && mounted) context.pop();
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/common_widgets.dart';
 import '../../../shared/widgets/theme_toggle.dart';
@@ -184,9 +185,31 @@ class ProfileScreen extends ConsumerWidget {
           if (isMe) ...[
             const SectionHeader('Ajustes'),
             const ThemeSwitchTile(),
-            const _SettingTile(icon: Icons.lock_outline_rounded, label: 'Privacidad de recetas'),
-            const _SettingTile(icon: Icons.notifications_outlined, label: 'Notificaciones'),
-            const _SettingTile(icon: Icons.logout_rounded, label: 'Cerrar sesión'),
+            _SettingTile(icon: Icons.edit_outlined, label: 'Editar perfil', onTap: () => context.push('/profile/edit')),
+            _SettingTile(
+              icon: Icons.notifications_outlined,
+              label: 'Notificaciones',
+              onTap: () => context.push('/notifications'),
+            ),
+            ListTile(
+              leading: Icon(Icons.mail_outline_rounded, color: AppColors.textMuted),
+              title: const Text('Cuenta'),
+              subtitle: Text(ref.watch(currentEmailProvider)),
+            ),
+            _SettingTile(
+              icon: Icons.logout_rounded,
+              label: 'Cerrar sesión',
+              onTap: () async {
+                if (await confirmDialog(
+                  context,
+                  'Cerrar sesión',
+                  '¿Quieres salir de tu cuenta en este teléfono?',
+                  confirm: 'Salir',
+                )) {
+                  await ref.read(sessionProvider.notifier).logout();
+                }
+              },
+            ),
           ],
           const SizedBox(height: 24),
         ],
@@ -331,15 +354,16 @@ class _Stat extends StatelessWidget {
 }
 
 class _SettingTile extends StatelessWidget {
-  const _SettingTile({required this.icon, required this.label});
+  const _SettingTile({required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => ListTile(
     leading: Icon(icon, color: AppColors.textMuted),
     title: Text(label),
     trailing: const Icon(Icons.chevron_right_rounded),
-    onTap: () => showSuccess(context, 'Disponible cuando conectemos el backend'),
+    onTap: onTap,
   );
 }

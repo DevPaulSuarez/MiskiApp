@@ -107,12 +107,7 @@ class _TimeLabel extends StatelessWidget {
       ? const SizedBox.shrink()
       : Text(
           Fmt.minutes(minutes!).toUpperCase(),
-          style: TextStyle(
-            fontSize: 10,
-            letterSpacing: 0.8,
-            fontWeight: FontWeight.w700,
-            color: AppColors.accent,
-          ),
+          style: TextStyle(fontSize: 10, letterSpacing: 0.8, fontWeight: FontWeight.w700, color: AppColors.accent),
         );
 }
 
