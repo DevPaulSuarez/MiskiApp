@@ -38,18 +38,46 @@ class InvitationController
             'message' => ['nullable', 'string', 'max:300'],
         ], ['to_user_ids.*.not_in' => 'No puedes invitarte a ti mismo.']);
 
-        $version = RecipeVersion::findOrFail($data['version_id']);
-        $invitations = DB::transaction(fn () => collect($data['to_user_ids'])->map(fn ($to) => Invitation::create([
-            'recipe_id' => $version->recipe_id,
-            'version_id' => $version->id,
-            'from_user_id' => $me->id,
-            'to_user_id' => $to,
-            'message' => trim((string) ($data['message'] ?? '')),
-        ])));
+        $invitations = DB::transaction(function () use ($me, $data) {
+            // Locking the version makes two quick taps on "Enviar" wait for each other,
+            // so the duplicate check below cannot be skipped by a race.
+            $version = RecipeVersion::lockForUpdate()->findOrFail($data['version_id']);
+            $this->rejectDuplicates($me->id, $version->id, $data['to_user_ids']);
+
+            return collect($data['to_user_ids'])->map(fn ($to) => Invitation::create([
+                'recipe_id' => $version->recipe_id,
+                'version_id' => $version->id,
+                'from_user_id' => $me->id,
+                'to_user_id' => $to,
+                'message' => trim((string) ($data['message'] ?? '')),
+            ]));
+        });
 
         $invitations->each(fn ($i) => InvitationSent::dispatch($i));
 
         return InvitationResource::collection($invitations)->response()->setStatusCode(201);
+    }
+
+    /**
+     * You can't invite someone again to the same version while your previous
+     * invitation is still open (pending or accepted without a rating). Once they
+     * rejected it or already rated, a new invitation is allowed.
+     */
+    private function rejectDuplicates(int $from, int $versionId, array $toUserIds): void
+    {
+        $open = Invitation::open()->with('guest')
+            ->where('from_user_id', $from)->where('version_id', $versionId)->whereIn('to_user_id', $toUserIds)
+            ->get()->keyBy('to_user_id');
+
+        $errors = [];
+        foreach ($toUserIds as $i => $to) {
+            if ($inv = $open->get((int) $to)) {
+                $errors["to_user_ids.$i"] = 'Ya invitaste a '.explode(' ', trim($inv->guest->name))[0].' a esta versión.';
+            }
+        }
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
     }
 
     /** The guest accepts or rejects a pending invitation. */

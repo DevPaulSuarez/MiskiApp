@@ -52,6 +52,10 @@ enum InvitationStatus {
 
   const InvitationStatus(this.label);
   final String label;
+
+  /// Still open for the guest (pending, or accepted and not rated yet). While an
+  /// invitation is open, the same person can't be invited again to that version.
+  bool get isOpen => this == pending || this == accepted;
 }
 
 class Invitation {

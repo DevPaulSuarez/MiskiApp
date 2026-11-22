@@ -6,6 +6,7 @@ use App\Modules\Identity\Models\User;
 use App\Modules\Recipes\Models\Recipe;
 use App\Modules\Recipes\Models\RecipeVersion;
 use App\Modules\Social\Enums\InvitationStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +19,12 @@ class Invitation extends Model
     protected function casts(): array
     {
         return ['status' => InvitationStatus::class];
+    }
+
+    /** Still open for the guest: pending, or accepted and not rated yet. */
+    public function scopeOpen(Builder $query): void
+    {
+        $query->whereIn('status', [InvitationStatus::Pending, InvitationStatus::Accepted]);
     }
 
     public function recipe(): BelongsTo

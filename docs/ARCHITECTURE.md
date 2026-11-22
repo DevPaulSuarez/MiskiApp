@@ -45,7 +45,8 @@ notificaciones push (FCM) se pueden sumar después como otro listener.
 - Solo el autor del plato cambia la versión principal, lo archiva o edita su ficha (`RecipePolicy`).
 - Al publicar una versión del plato de otra persona, el autor recibe un aviso con **solo** los ingredientes
   agregados y quitados.
-- Invitaciones: solo el invitado responde y solo una vez; para calificar debe haber aceptado; una calificación
+- Invitaciones: no se puede invitar otra vez a la misma persona a la misma versión mientras su invitación siga
+  abierta (pendiente o aceptada sin calificar); solo el invitado responde y solo una vez; para calificar debe haber aceptado; una calificación
   por invitación (al calificar, la invitación pasa a "completada" y el comentario aparece en la versión). Sin
   invitación: no puedes calificar tu propia versión y solo una vez por versión.
 - La unidad de compra debe ser compatible con la unidad usada en la receta (masa, volumen o unidades).

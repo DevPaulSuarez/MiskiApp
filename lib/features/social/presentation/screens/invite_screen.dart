@@ -42,6 +42,7 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
   Widget build(BuildContext context) {
     final me = ref.watch(currentUserIdProvider);
     final users = ref.watch(usersProvider).where((u) => u.id != me).toList();
+    final invited = ref.watch(openInviteesProvider(widget.versionId));
     final version = ref.watch(versionByIdProvider(widget.versionId))!;
     final recipe = ref.watch(recipeByIdProvider(version.recipeId))!;
 
@@ -63,12 +64,18 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Card(
                 child: CheckboxListTile(
-                  value: _selected.contains(u.id),
+                  // Already invited (and still open): shown checked but locked.
+                  value: invited.containsKey(u.id) || _selected.contains(u.id),
                   activeColor: AppColors.accent,
-                  onChanged: (v) => setState(() => v! ? _selected.add(u.id) : _selected.remove(u.id)),
+                  onChanged: invited.containsKey(u.id)
+                      ? null
+                      : (v) => setState(() => v! ? _selected.add(u.id) : _selected.remove(u.id)),
                   secondary: UserAvatar(initials: u.initials),
                   title: Text(u.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text(u.handle),
+                  subtitle: Text(switch (invited[u.id]) {
+                    final s? => '${u.handle} · Ya invitado (${s.label.toLowerCase()})',
+                    null => u.handle,
+                  }),
                 ),
               ),
             ),

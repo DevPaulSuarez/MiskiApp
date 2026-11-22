@@ -118,7 +118,7 @@ Para **cambiar el orden o agregar una pestaña**: mover/añadir la `StatefulShel
 | `/version/:vid/derive` | mismo editor con `parentVersionId` | Nueva versión basada en otra (nunca edita la original) | `versionsProvider.notifier.add` | `POST recipes/{id}/versions` |
 | `/recipe/:id/versions` | `recipes/presentation/screens/version_history_screen.dart` | Árbol/lista de versiones; elegir 2 para comparar | — | (local) |
 | `/recipe/:id/compare?a=&b=` | `recipes/presentation/screens/compare_versions_screen.dart` | Diferencias de ingredientes, pasos, costo y calificación | — | (local) |
-| `/version/:vid/costs?servings=` | `recipes/presentation/screens/costs_screen.dart` | Costo total y por porción | — | (local, `CostCalculator`) |
+| `/version/:vid/costs?servings=` | `recipes/presentation/screens/costs_screen.dart` | Costo total y por porción (**oculta por ahora**, ver §9.10) | — | (local, `CostCalculator`) |
 
 Widgets de recetas reutilizados en varias pantallas:
 
@@ -248,6 +248,7 @@ botones y en `DemoBackend`). Si cambias una regla, cambia los tres sitios.
 | Unidad de compra compatible | `VersionRules::checkUnits` | `ingredient_line_sheet.dart` (solo ofrece compatibles) | — |
 | Ingredientes sin duplicados | `CatalogController@storeIngredient` | `IngredientsNotifier.findOrCreate` | `findOrCreateIngredient` |
 | Detección de plato duplicado | — (solo sugerencia) | `dish_matcher.dart`, `_SimilarDishesHint` | — |
+| No invitar dos veces a la misma persona a la misma versión mientras su invitación siga abierta (pendiente o aceptada sin calificar) | `InvitationController::rejectDuplicates`, scope `Invitation::open` | `openInviteesProvider` en `social_providers.dart`; filas bloqueadas en `invite_screen.dart` | `sendInvitations` |
 | Solo el invitado responde, una vez | `InvitationController@update` | `invitations_screen.dart` | `answerInvitation` |
 | Para calificar con invitación hay que aceptarla; una calificación por invitación | `RatingController::checkInvitation` | `RatingsNotifier.canRateInvitation`, `rate_screen.dart` | `rate` |
 | No calificar tu propia versión; una vez por versión | `RatingController@store` | botones en `recipe_detail_screen.dart` | `rate` |
@@ -344,6 +345,21 @@ rutas en `app_router.dart` y, si hace falta en el arranque, su parte en `AppSnap
 No está en el código: se pasa al compilar con `--dart-define=MISKI_API_URL=http://IP:8000/api/v1`
 (`scripts/build-apk.sh` lo hace solo). En el backend, `APP_URL` de `backend/.env` define las URLs de las fotos.
 
+### 9.10 Volver a mostrar precios y costos
+Por ahora **todo lo de precios y costos está oculto** en la app, pero sigue en el código y en la API (los
+precios guardados no se pierden). Lo controla `AppConfig.showCosts` en `lib/core/config/app_config.dart`.
+
+- Probarlo sin tocar código: `flutter run --dart-define=MISKI_SHOW_COSTS=true` (o agrégalo en
+  `scripts/build-apk.sh`).
+- Activarlo para siempre: cambia el valor por defecto en `app_config.dart` y borra `test/costs_hidden_test.dart`
+  (esa prueba verifica que estén ocultos).
+
+Qué se oculta: la sección "Costos" y el criterio "Costo/calidad" del detalle (`recipe_detail_screen.dart`), la
+ruta `/version/:vid/costs` (`costs_screen.dart`), los costos al comparar versiones, el costo por persona en el
+historial, el precio de compra al agregar un ingrediente (`ingredient_line_sheet.dart`; si una línea ya tenía
+precio, se conserva al editarla) y el criterio "Costo / calidad" al calificar (se envía en 0, y los promedios
+ignoran los ceros). Antes de activarlo, cambia la moneda de `$` a `S/` en `Fmt.money` (`lib/core/utils/formatters.dart`).
+
 ---
 
 ## 10. Datos demo y semillas
@@ -364,7 +380,9 @@ No está en el código: se pasa al compilar con `--dart-define=MISKI_API_URL=htt
 
 | Comando | Archivo | Qué verifica |
 |---|---|---|
-| `flutter test` | `test/app_navigation_test.dart` | Recorridos principales en modo demo: inicio → detalle, pestañas, invitaciones, perfiles, recetario y filtros, tema, barra de 5 pestañas |
+| `flutter test` | `test/costs_hidden_test.dart` | Que precios y costos no se vean mientras `AppConfig.showCosts` esté apagado |
+| | `test/invitations_test.dart` | Que no se pueda invitar dos veces mientras la invitación siga abierta |
+| | `test/app_navigation_test.dart` | Recorridos principales en modo demo: inicio → detalle, pestañas, invitaciones, perfiles, recetario y filtros, tema, barra de 5 pestañas |
 | | `test/auth_flow_test.dart` | Login, registro, cierre de sesión y redirecciones |
 | | `test/api_client_test.dart` | Contrato JSON y manejo de errores del `ApiClient` |
 | | `test/recipe_calculators_test.dart` | Porciones, costos y comparación de versiones |
