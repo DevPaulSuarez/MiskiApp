@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/session/session_controller.dart';
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
+import '../../features/profile/presentation/screens/edit_profile_screen.dart';
+import 'activity_sync.dart';
 import 'miski_nav_bar.dart';
 
 import '../../features/home/presentation/home_screen.dart';
@@ -23,10 +28,29 @@ import '../../features/social/presentation/screens/rate_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  // Re-run the redirect whenever the session changes (signed in, signed out, loaded).
+  final sessionChanges = ValueNotifier(0);
+  ref.listen(sessionProvider, (_, _) => sessionChanges.value++);
+  ref.onDispose(sessionChanges.dispose);
+
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: sessionChanges,
+    redirect: (_, state) {
+      final session = ref.read(sessionProvider);
+      final loc = state.matchedLocation;
+      if (!session.hasValue) return loc == '/splash' ? null : '/splash'; // loading or offline
+      final signedIn = session.value != null;
+      final onAuth = loc == '/login' || loc == '/register';
+      if (!signedIn) return onAuth ? null : '/login';
+      if (onAuth || loc == '/splash') return '/recipes';
+      return null;
+    },
     routes: [
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/profile/edit', builder: (_, _) => const EditProfileScreen()),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => _AppShell(shell: shell),
         branches: [
@@ -123,7 +147,7 @@ class _AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: shell,
+    body: ActivitySync(child: shell),
     bottomNavigationBar: MiskiNavBar(
       items: _items,
       currentIndex: shell.currentIndex,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../shared/widgets/common_widgets.dart';
@@ -22,7 +23,7 @@ class FavoriteButton extends ConsumerWidget {
       shape: const CircleBorder(),
       child: IconButton(
         visualDensity: VisualDensity.compact,
-        onPressed: () => ref.read(favoritesProvider.notifier).toggle(recipeId),
+        onPressed: () => runQuietly(context, () => ref.read(favoritesProvider.notifier).toggle(recipeId)),
         icon: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),

@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/network/api_exception.dart';
+import '../../../core/session/session_controller.dart';
 
-class SplashScreen extends StatefulWidget {
+/// Shown while the session loads. The router leaves it as soon as the session
+/// is ready; if the server can't be reached it offers to retry.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
   late final _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..forward();
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1800), () {
-      if (mounted) context.go('/recipes');
-    });
-  }
 
   @override
   void dispose() {
@@ -29,6 +25,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(sessionProvider);
+    final error = session.hasError ? session.error : null;
     final fade = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -61,6 +59,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   'Tus recetas, sus versiones y tu mesa',
                   style: TextStyle(color: AppColors.gold, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
+                if (error != null) ...[
+                  const SizedBox(height: 32),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      error is ApiException ? error.message : 'No pudimos iniciar Miski.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.textMuted),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: () => ref.invalidate(sessionProvider),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Reintentar'),
+                  ),
+                ],
               ],
             ),
           ),

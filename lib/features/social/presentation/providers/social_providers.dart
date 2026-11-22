@@ -1,15 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/mock/mock_data.dart';
-import '../../../recipes/presentation/providers/recipe_providers.dart';
+import '../../../../core/session/session_controller.dart';
+import '../../../profile/data/profile_data_providers.dart';
+import '../../../profile/domain/profile_repository.dart';
+import '../../data/social_data_providers.dart';
 import '../../domain/social_entities.dart';
+import '../../domain/social_repository.dart';
 
+SocialRepository _social(Ref ref) => ref.read(socialRepositoryProvider);
+
+// --- Users ---
 class UsersNotifier extends Notifier<List<AppUser>> {
   @override
-  List<AppUser> build() => [...MockData.users];
+  List<AppUser> build() => ref.watch(snapshotProvider).users;
 
-  void setFavoriteFoods(String userId, List<String> foods) =>
-      state = [for (final u in state) u.id == userId ? u.copyWith(favoriteFoods: foods) : u];
+  /// Updates the signed-in user's profile.
+  Future<AppUser> updateMe(ProfileUpdate update) async {
+    final me = await ref.read(profileRepositoryProvider).updateProfile(update);
+    state = [for (final u in state) u.id == me.id ? me : u];
+    return me;
+  }
+
+  Future<void> setFavoriteFoods(List<String> foods) => updateMe(ProfileUpdate(favoriteFoods: foods));
 }
 
 final usersProvider = NotifierProvider<UsersNotifier, List<AppUser>>(UsersNotifier.new);
@@ -27,37 +39,36 @@ final upcomingBirthdaysProvider = Provider<List<(AppUser, int)>>((ref) {
   return list;
 });
 
+/// Someone not loaded yet (e.g. a person who just signed up) shows as a placeholder.
 final userByIdProvider = Provider.family<AppUser, String>(
-  (ref, id) => ref.watch(usersProvider).firstWhere((u) => u.id == id),
+  (ref, id) =>
+      ref.watch(usersProvider).where((u) => u.id == id).firstOrNull ??
+      AppUser(id: id, name: 'Usuario de Miski', handle: '@miski', bio: ''),
 );
 
-// --- Notifications ---
+// --- Notifications (server-generated) ---
 class NotificationsNotifier extends Notifier<List<AppNotification>> {
   @override
-  List<AppNotification> build() => [...MockData.notifications];
+  List<AppNotification> build() => ref.watch(snapshotProvider).notifications;
 
-  /// Sends to [toUserId], or to the current user when omitted.
-  void push(String title, String body, {String? route, String? toUserId}) => state = [
-    AppNotification(
-      id: newId('n'),
-      userId: toUserId ?? ref.read(currentUserIdProvider),
-      title: title,
-      body: body,
-      createdAt: DateTime.now(),
-      route: route,
-    ),
-    ...state,
-  ];
+  /// Fetches the latest notifications; returns true when there are new ones.
+  Future<bool> reload() async {
+    final known = {for (final n in state) n.id};
+    state = await _social(ref).fetchNotifications();
+    return state.any((n) => !known.contains(n.id));
+  }
 
-  void markRead(String id) => state = [for (final n in state) n.id == id ? n.markRead() : n];
+  Future<void> markRead(String id) async {
+    state = [for (final n in state) n.id == id ? n.markRead() : n];
+    await _social(ref).markNotificationRead(id);
+  }
 
-  void markAllRead() {
-    final me = ref.read(currentUserIdProvider);
-    state = [for (final n in state) n.userId == me ? n.markRead() : n];
+  Future<void> markAllRead() async {
+    state = [for (final n in state) n.markRead()];
+    await _social(ref).markAllNotificationsRead();
   }
 }
 
-/// All notifications in the system (every recipient). Screens should use [myNotificationsProvider].
 final notificationsProvider = NotifierProvider<NotificationsNotifier, List<AppNotification>>(NotificationsNotifier.new);
 
 final myNotificationsProvider = Provider((ref) {
@@ -70,32 +81,19 @@ final unreadCountProvider = Provider((ref) => ref.watch(myNotificationsProvider)
 // --- Invitations ---
 class InvitationsNotifier extends Notifier<List<Invitation>> {
   @override
-  List<Invitation> build() => [...MockData.invitations];
+  List<Invitation> build() => ref.watch(snapshotProvider).invitations;
 
-  void send({
-    required String recipeId,
-    required String versionId,
-    required List<String> toUserIds,
-    required String message,
-  }) {
-    final from = ref.read(currentUserIdProvider);
-    state = [
-      for (final to in toUserIds)
-        Invitation(
-          id: newId('inv$to'),
-          recipeId: recipeId,
-          versionId: versionId,
-          fromUserId: from,
-          toUserId: to,
-          message: message,
-          createdAt: DateTime.now(),
-        ),
-      ...state,
-    ];
+  void _put(Invitation inv) => state = [for (final i in state) i.id == inv.id ? inv : i];
+
+  Future<void> send({required String versionId, required List<String> toUserIds, required String message}) async {
+    final sent = await _social(ref).sendInvitations(versionId: versionId, toUserIds: toUserIds, message: message);
+    state = [...sent, ...state];
   }
 
-  void setStatus(String id, InvitationStatus status) =>
-      state = [for (final i in state) i.id == id ? i.withStatus(status) : i];
+  Future<void> answer(String id, {required bool accept}) async =>
+      _put(await _social(ref).answerInvitation(id, accept: accept));
+
+  void _replace(Invitation inv) => _put(inv);
 }
 
 final invitationsProvider = NotifierProvider<InvitationsNotifier, List<Invitation>>(InvitationsNotifier.new);
@@ -112,12 +110,18 @@ final friendIdsProvider = Provider<Set<String>>((ref) {
 // --- Ratings ---
 class RatingsNotifier extends Notifier<List<Rating>> {
   @override
-  List<Rating> build() => [...MockData.ratings];
+  List<Rating> build() => ref.watch(snapshotProvider).ratings;
 
   /// One rating per completed invitation.
   bool canRateInvitation(String invitationId) => !state.any((r) => r.invitationId == invitationId);
 
-  void add(Rating rating) => state = [rating, ...state];
+  /// Saves the rating; its comment and the completed invitation come back with it.
+  Future<void> rate(RatingDraft draft) async {
+    final res = await _social(ref).rate(draft);
+    state = [res.rating, ...state];
+    if (res.comment case final c?) ref.read(commentsProvider.notifier)._put(c);
+    if (res.invitation case final i?) ref.read(invitationsProvider.notifier)._replace(i);
+  }
 }
 
 final ratingsProvider = NotifierProvider<RatingsNotifier, List<Rating>>(RatingsNotifier.new);
@@ -133,18 +137,11 @@ final recipeRatingSummaryProvider = Provider.family<RatingSummary, String>(
 // --- Comments ---
 class CommentsNotifier extends Notifier<List<Comment>> {
   @override
-  List<Comment> build() => [...MockData.comments];
+  List<Comment> build() => ref.watch(snapshotProvider).comments;
 
-  void add(String versionId, String text) => state = [
-    ...state,
-    Comment(
-      id: newId('co'),
-      userId: ref.read(currentUserIdProvider),
-      versionId: versionId,
-      text: text,
-      createdAt: DateTime.now(),
-    ),
-  ];
+  void _put(Comment c) => state = [...state, c];
+
+  Future<void> add(String versionId, String text) async => _put(await _social(ref).addComment(versionId, text));
 }
 
 final commentsProvider = NotifierProvider<CommentsNotifier, List<Comment>>(CommentsNotifier.new);

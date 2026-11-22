@@ -128,17 +128,17 @@ void main() {
   group('recipe filters', () {
     final byId = {for (final x in MockData.versions) x.id: x};
     RatingStats rating(String id) => switch (id) {
-          'r1' => (average: 4.5, count: 10, reliable: true),
-          'r2' => (average: 5.0, count: 1, reliable: false),
-          'r3' => (average: 4.0, count: 20, reliable: true),
-          _ => (average: 0.0, count: 0, reliable: false),
-        };
+      'r1' => (average: 4.5, count: 10, reliable: true),
+      'r2' => (average: 5.0, count: 1, reliable: false),
+      'r3' => (average: 4.0, count: 20, reliable: true),
+      _ => (average: 0.0, count: 0, reliable: false),
+    };
     List<String> run(RecipeFilters f) => applyRecipeFilters(
-          MockData.recipes,
-          f,
-          mainVersionOf: (r) => byId[r.mainVersionId],
-          ratingOf: (r) => rating(r.id),
-        ).map((r) => r.id).toList();
+      MockData.recipes,
+      f,
+      mainVersionOf: (r) => byId[r.mainVersionId],
+      ratingOf: (r) => rating(r.id),
+    ).map((r) => r.id).toList();
 
     test('best rated puts reliable averages first', () {
       expect(run(const RecipeFilters()).take(3), ['r1', 'r3', 'r2']);
@@ -153,7 +153,11 @@ void main() {
         final v = byId[MockData.recipes.firstWhere((r) => r.id == id).mainVersionId]!;
         expect(v.servings <= 2 && v.totalMinutes <= 30, isTrue);
       }
-      expect(run(const RecipeFilters(categoryId: 'c4')).every((id) => MockData.recipes.firstWhere((r) => r.id == id).categoryId == 'c4'), isTrue);
+      expect(
+        run(const RecipeFilters(categoryId: 'c4'))
+            .every((id) => MockData.recipes.firstWhere((r) => r.id == id).categoryId == 'c4'),
+        isTrue,
+      );
     });
 
     test('best of the week only counts reviews from the last 7 days', () {

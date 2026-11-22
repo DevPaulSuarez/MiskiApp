@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/common_widgets.dart';
@@ -25,12 +26,15 @@ class _CommentsScreenState extends ConsumerState<CommentsScreen> {
     super.dispose();
   }
 
-  void _send() {
+  Future<void> _send() async {
     final t = _text.text.trim();
     if (t.isEmpty) return;
-    ref.read(commentsProvider.notifier).add(widget.versionId, t);
-    _text.clear();
     FocusScope.of(context).unfocus();
+    final ok = await runAction(context, () async {
+      await ref.read(commentsProvider.notifier).add(widget.versionId, t);
+      return true;
+    });
+    if (ok == true) _text.clear();
   }
 
   @override

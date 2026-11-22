@@ -1,0 +1,7 @@
+{
+    "Unauthenticated.": "Tu sesión expiró. Vuelve a iniciar sesión.",
+    "This action is unauthorized.": "No tienes permiso para hacer esto.",
+    "Too Many Attempts.": "Demasiados intentos. Espera un momento.",
+    "Not Found": "No encontrado.",
+    "The :attribute field must be at least :min characters.": "El campo :attribute debe tener al menos :min caracteres."
+}

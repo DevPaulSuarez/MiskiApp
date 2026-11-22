@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../../../core/utils/formatters.dart';
@@ -413,8 +414,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         final other = vs.firstWhere((v) => v.id != version.id);
         context.push('/recipe/${recipe.id}/compare?a=${other.id}&b=${version.id}');
       case 'main':
-        notifier.setMainVersion(recipe.id, version.id);
-        showSuccess(context, 'V${version.number} es ahora la versión principal');
+        await runAction(
+          context,
+          () => notifier.setMainVersion(recipe.id, version.id),
+          success: 'V${version.number} es ahora la versión principal',
+        );
       case 'archive':
         final archiving = recipe.status == RecipeStatus.active;
         if (archiving &&
@@ -426,8 +430,12 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
             )) {
           return;
         }
-        notifier.toggleArchive(recipe.id);
-        if (mounted) showSuccess(context, archiving ? 'Receta archivada' : 'Receta restaurada');
+        if (!mounted) return;
+        await runAction(
+          context,
+          () => notifier.toggleArchive(recipe.id),
+          success: archiving ? 'Receta archivada' : 'Receta restaurada',
+        );
     }
   }
 }

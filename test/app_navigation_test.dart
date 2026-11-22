@@ -237,7 +237,8 @@ void main() {
     await tester.tap(find.byTooltip('Inicio'));
     await tester.pumpAndSettle();
 
-    Color bg() => tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor ??
+    Color bg() =>
+        tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor ??
         Theme.of(tester.element(find.byType(Scaffold).last)).scaffoldBackgroundColor;
     expect(bg(), const Color(0xFF000000)); // dark: black
 

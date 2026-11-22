@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/async_action.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../shared/widgets/common_widgets.dart';
 import '../../../recipes/presentation/providers/recipe_providers.dart';
-import '../../domain/social_entities.dart';
+import '../../domain/social_repository.dart';
 import '../providers/social_providers.dart';
 
 class RateScreen extends ConsumerStatefulWidget {
@@ -31,39 +32,30 @@ class _RateScreenState extends ConsumerState<RateScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    final version = ref.read(versionByIdProvider(widget.versionId))!;
+  Future<void> _submit() async {
     final invId = widget.invitationId;
     if (invId != null && !ref.read(ratingsProvider.notifier).canRateInvitation(invId)) {
       showSuccess(context, 'Ya calificaste esta invitación');
       return;
     }
-    ref
-        .read(ratingsProvider.notifier)
-        .add(
-          Rating(
-            id: newId('ra'),
-            userId: ref.read(currentUserIdProvider),
-            recipeId: version.recipeId,
-            versionId: version.id,
-            invitationId: invId,
-            stars: _stars,
-            flavor: _flavor,
-            presentation: _presentation,
-            ease: _ease,
-            value: _value,
-            comment: _comment.text.trim(),
-            createdAt: DateTime.now(),
-          ),
-        );
-    if (_comment.text.trim().isNotEmpty) {
-      ref.read(commentsProvider.notifier).add(version.id, _comment.text.trim());
-    }
-    if (invId != null) {
-      ref.read(invitationsProvider.notifier).setStatus(invId, InvitationStatus.completed);
-    }
-    showSuccess(context, '¡Gracias por tu valoración!');
-    context.pop();
+    final ok = await runAction(context, () async {
+      await ref
+          .read(ratingsProvider.notifier)
+          .rate(
+            RatingDraft(
+              versionId: widget.versionId,
+              invitationId: invId,
+              stars: _stars,
+              flavor: _flavor,
+              presentation: _presentation,
+              ease: _ease,
+              value: _value,
+              comment: _comment.text.trim(),
+            ),
+          );
+      return true;
+    }, success: '¡Gracias por tu valoración!');
+    if (ok == true && mounted) context.pop();
   }
 
   @override
