@@ -1,5 +1,7 @@
 # Arquitectura de Miski
 
+> Índice de "dónde modificar cada cosa": [GUIA_DE_CAMBIOS.md](GUIA_DE_CAMBIOS.md).
+
 Miski está hecho para crecer por **módulos**: cada dominio (recetas, social, notificaciones...) vive en su
 carpeta, con sus datos, reglas y rutas, en la app y en el backend. Los módulos futuros del plan (compras,
 planificador semanal, eventos, menús, despensa) se agregan como módulos nuevos sin tocar los existentes.

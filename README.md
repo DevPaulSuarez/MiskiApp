@@ -10,7 +10,8 @@ Plataforma de recetas con versiones: cada plato existe una sola vez y cada perso
 | Base de datos | MySQL | `backend/database`, migraciones en cada módulo |
 
 La arquitectura (módulos, cómo agregar uno nuevo, endpoints y modelo de datos) está en
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Para saber **qué archivo tocar** para cada pantalla, endpoint o regla
+sin romper nada, usa [docs/GUIA_DE_CAMBIOS.md](docs/GUIA_DE_CAMBIOS.md).
 
 ## Ejecutar en local
 
