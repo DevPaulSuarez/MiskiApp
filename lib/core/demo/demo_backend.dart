@@ -226,6 +226,22 @@ class DemoBackend
     String message = '',
   }) async {
     final version = _versions.firstWhere((v) => v.id == versionId);
+    // Same rule as the server: no second invitation while the previous one is open.
+    for (final (index, to) in toUserIds.indexed) {
+      final open = _invitations.any(
+        (i) => i.fromUserId == _uid && i.versionId == versionId && i.toUserId == to && i.status.isOpen,
+      );
+      if (open) {
+        final message = 'Ya invitaste a ${_user(to).firstName} a esta versión.';
+        throw ApiException(
+          message,
+          statusCode: 422,
+          fieldErrors: {
+            'to_user_ids.$index': [message],
+          },
+        );
+      }
+    }
     final sent = [
       for (final to in toUserIds)
         Invitation(

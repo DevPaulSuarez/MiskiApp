@@ -98,6 +98,16 @@ class InvitationsNotifier extends Notifier<List<Invitation>> {
 
 final invitationsProvider = NotifierProvider<InvitationsNotifier, List<Invitation>>(InvitationsNotifier.new);
 
+/// People the current user already invited to [versionId] whose invitation is still
+/// open, with its status. They can't be invited again until they reject it or rate.
+final openInviteesProvider = Provider.family<Map<String, InvitationStatus>, String>((ref, versionId) {
+  final me = ref.watch(currentUserIdProvider);
+  return {
+    for (final i in ref.watch(invitationsProvider))
+      if (i.fromUserId == me && i.versionId == versionId && i.status.isOpen) i.toUserId: i.status,
+  };
+});
+
 /// People the current user has exchanged invitations with (sent or received).
 final friendIdsProvider = Provider<Set<String>>((ref) {
   final me = ref.watch(currentUserIdProvider);

@@ -53,6 +53,40 @@ class SocialTest extends TestCase
             ->assertJsonValidationErrors('to_user_ids.0');
     }
 
+    public function test_cannot_invite_twice_while_the_invitation_is_open(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create(['name' => 'Lucía Ramos']);
+        $other = User::factory()->create();
+        [$dish, $inv] = $this->invite($host, $guest);
+        $send = fn (array $to) => $this->postJson('/api/v1/invitations', ['version_id' => $dish['version']['id'], 'to_user_ids' => $to]);
+
+        // Pending: blocked, and nothing is created for the others in the same request.
+        $send([$other->id, $guest->id])
+            ->assertJsonValidationErrors(['to_user_ids.1' => 'Ya invitaste a Lucía a esta versión.']);
+        $this->assertDatabaseCount('invitations', 1);
+
+        // Accepted but not rated yet: still blocked.
+        Sanctum::actingAs($guest);
+        $this->patchJson("/api/v1/invitations/{$inv['id']}", ['status' => 'accepted'])->assertOk();
+        Sanctum::actingAs($host);
+        $send([$guest->id])->assertJsonValidationErrors('to_user_ids.0');
+
+        // Another version of the same dish is a different invitation.
+        $v2 = $this->postJson("/api/v1/recipes/{$dish['recipe']['id']}/versions", [
+            'parent_version_id' => $dish['version']['id'], ...$this->versionPayload(),
+        ])->assertCreated()->json('id');
+        $this->postJson('/api/v1/invitations', ['version_id' => $v2, 'to_user_ids' => [$guest->id]])->assertCreated();
+
+        // Rejected: can be invited again.
+        $third = User::factory()->create();
+        $rejected = $send([$third->id])->assertCreated()->json('0.id');
+        Sanctum::actingAs($third);
+        $this->patchJson("/api/v1/invitations/$rejected", ['status' => 'rejected'])->assertOk();
+        Sanctum::actingAs($host);
+        $send([$third->id])->assertCreated();
+    }
+
     public function test_rating_without_invitation(): void
     {
         $author = $this->actingAsUser();

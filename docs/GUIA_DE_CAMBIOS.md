@@ -248,6 +248,7 @@ botones y en `DemoBackend`). Si cambias una regla, cambia los tres sitios.
 | Unidad de compra compatible | `VersionRules::checkUnits` | `ingredient_line_sheet.dart` (solo ofrece compatibles) | — |
 | Ingredientes sin duplicados | `CatalogController@storeIngredient` | `IngredientsNotifier.findOrCreate` | `findOrCreateIngredient` |
 | Detección de plato duplicado | — (solo sugerencia) | `dish_matcher.dart`, `_SimilarDishesHint` | — |
+| No invitar dos veces a la misma persona a la misma versión mientras su invitación siga abierta (pendiente o aceptada sin calificar) | `InvitationController::rejectDuplicates`, scope `Invitation::open` | `openInviteesProvider` en `social_providers.dart`; filas bloqueadas en `invite_screen.dart` | `sendInvitations` |
 | Solo el invitado responde, una vez | `InvitationController@update` | `invitations_screen.dart` | `answerInvitation` |
 | Para calificar con invitación hay que aceptarla; una calificación por invitación | `RatingController::checkInvitation` | `RatingsNotifier.canRateInvitation`, `rate_screen.dart` | `rate` |
 | No calificar tu propia versión; una vez por versión | `RatingController@store` | botones en `recipe_detail_screen.dart` | `rate` |
@@ -364,7 +365,8 @@ No está en el código: se pasa al compilar con `--dart-define=MISKI_API_URL=htt
 
 | Comando | Archivo | Qué verifica |
 |---|---|---|
-| `flutter test` | `test/app_navigation_test.dart` | Recorridos principales en modo demo: inicio → detalle, pestañas, invitaciones, perfiles, recetario y filtros, tema, barra de 5 pestañas |
+| `flutter test` | `test/invitations_test.dart` | Que no se pueda invitar dos veces mientras la invitación siga abierta |
+| | `test/app_navigation_test.dart` | Recorridos principales en modo demo: inicio → detalle, pestañas, invitaciones, perfiles, recetario y filtros, tema, barra de 5 pestañas |
 | | `test/auth_flow_test.dart` | Login, registro, cierre de sesión y redirecciones |
 | | `test/api_client_test.dart` | Contrato JSON y manejo de errores del `ApiClient` |
 | | `test/recipe_calculators_test.dart` | Porciones, costos y comparación de versiones |
