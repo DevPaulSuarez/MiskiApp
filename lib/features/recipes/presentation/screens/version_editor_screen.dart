@@ -16,6 +16,7 @@ import '../../domain/services/dish_matcher.dart';
 import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
 import '../widgets/ingredient_line_sheet.dart';
+import '../../../../core/config/app_config.dart';
 
 const _presetPhotos = [
   'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=900&q=80&auto=format&fit=crop',
@@ -437,7 +438,8 @@ class _VersionEditorScreenState extends ConsumerState<VersionEditorScreen> with 
                   subtitle: Text(
                     [
                       if (_ingredients[i].note.isNotEmpty) _ingredients[i].note,
-                      if (_ingredients[i].purchase != null) 'Compra: ${Fmt.money(_ingredients[i].purchase!.price)}',
+                      if (AppConfig.showCosts && _ingredients[i].purchase != null)
+                        'Compra: ${Fmt.money(_ingredients[i].purchase!.price)}',
                     ].join(' · '),
                   ),
                   trailing: Row(

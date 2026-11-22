@@ -12,6 +12,7 @@ import '../../domain/entities/recipe.dart';
 import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
 import '../widgets/recipe_card.dart';
+import '../../../../core/config/app_config.dart';
 
 /// Shows a recipe through one selected version. Also used as "version detail".
 class RecipeDetailScreen extends ConsumerStatefulWidget {
@@ -228,38 +229,40 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
               ),
             ),
           ),
-          // Costs summary
-          SliverToBoxAdapter(
-            child: SectionHeader(
-              'Costos',
-              action: 'Ver desglose',
-              onAction: () => context.push('/version/${version.id}/costs?servings=$servings'),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Total ($servings pers.)',
-                      value: Fmt.money(costs.total),
-                      color: AppColors.accent,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Por persona',
-                      value: Fmt.money(costs.perServing),
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+          // Costs summary (hidden for now, see AppConfig.showCosts)
+          if (AppConfig.showCosts) ...[
+            SliverToBoxAdapter(
+              child: SectionHeader(
+                'Costos',
+                action: 'Ver desglose',
+                onAction: () => context.push('/version/${version.id}/costs?servings=$servings'),
               ),
             ),
-          ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'Total ($servings pers.)',
+                        value: Fmt.money(costs.total),
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'Por persona',
+                        value: Fmt.money(costs.perServing),
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           // Ratings
           SliverToBoxAdapter(
             child: SectionHeader(
@@ -293,7 +296,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                   _CriterionBar('Sabor', rating.flavor),
                                   _CriterionBar('Presentación', rating.presentation),
                                   _CriterionBar('Facilidad', rating.ease),
-                                  _CriterionBar('Costo/calidad', rating.value),
+                                  if (AppConfig.showCosts) _CriterionBar('Costo/calidad', rating.value),
                                 ],
                               ),
                             ),

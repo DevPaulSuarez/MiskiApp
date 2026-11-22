@@ -8,6 +8,7 @@ import '../../../social/domain/social_entities.dart';
 import '../../../social/presentation/providers/social_providers.dart';
 import '../../domain/entities/recipe.dart';
 import '../providers/recipe_providers.dart';
+import '../../../../core/config/app_config.dart';
 
 class CompareVersionsScreen extends ConsumerStatefulWidget {
   const CompareVersionsScreen({super.key, required this.recipeId, this.initialA, this.initialB});
@@ -93,8 +94,10 @@ class _CompareVersionsScreenState extends ConsumerState<CompareVersionsScreen> {
                   _Row('Tiempo total', Fmt.minutes(a.totalMinutes), Fmt.minutes(b.totalMinutes)),
                   _Row('Dificultad', a.difficulty.label, b.difficulty.label),
                   _Row('Porciones', '${a.servings}', '${b.servings}'),
-                  _Row('Costo total', Fmt.money(costA.total), Fmt.money(costB.total)),
-                  _Row('Costo/persona', Fmt.money(costA.perServing), Fmt.money(costB.perServing)),
+                  if (AppConfig.showCosts) ...[
+                    _Row('Costo total', Fmt.money(costA.total), Fmt.money(costB.total)),
+                    _Row('Costo/persona', Fmt.money(costA.perServing), Fmt.money(costB.perServing)),
+                  ],
                   _Row('Promedio', _ratingLabel(rA), _ratingLabel(rB)),
                   _Row('Valoraciones', '${rA.count}', '${rB.count}'),
                   _Row('Comentarios', '$cA', '$cB'),
@@ -165,8 +168,10 @@ class _CompareVersionsScreenState extends ConsumerState<CompareVersionsScreen> {
             _DiffTile(icon: Icons.remove_circle_rounded, color: AppColors.danger, title: 'Paso eliminado', detail: s),
           if (!diff.stepsReordered && diff.stepsAdded.isEmpty && diff.stepsRemoved.isEmpty)
             const Text('Sin diferencias en la preparación.'),
-          const SectionHeader('Costo por ingrediente'),
-          _CostCompare(a: a, b: b, nameOf: name),
+          if (AppConfig.showCosts) ...[
+            const SectionHeader('Costo por ingrediente'),
+            _CostCompare(a: a, b: b, nameOf: name),
+          ],
         ],
       ),
     );

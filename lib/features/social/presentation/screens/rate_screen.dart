@@ -8,6 +8,7 @@ import '../../../../shared/widgets/common_widgets.dart';
 import '../../../recipes/presentation/providers/recipe_providers.dart';
 import '../../domain/social_repository.dart';
 import '../providers/social_providers.dart';
+import '../../../../core/config/app_config.dart';
 
 class RateScreen extends ConsumerStatefulWidget {
   const RateScreen({super.key, required this.versionId, this.invitationId});
@@ -108,7 +109,7 @@ class _RateScreenState extends ConsumerState<RateScreen> {
                   criterion('Sabor', _flavor, (v) => setState(() => _flavor = v)),
                   criterion('Presentación', _presentation, (v) => setState(() => _presentation = v)),
                   criterion('Facilidad', _ease, (v) => setState(() => _ease = v)),
-                  criterion('Costo / calidad', _value, (v) => setState(() => _value = v)),
+                  if (AppConfig.showCosts) criterion('Costo / calidad', _value, (v) => setState(() => _value = v)),
                 ],
               ),
             ),

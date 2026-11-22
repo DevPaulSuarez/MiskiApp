@@ -9,6 +9,7 @@ import '../../../social/presentation/providers/social_providers.dart';
 import '../../domain/entities/recipe.dart';
 import '../providers/preparation_providers.dart';
 import '../providers/recipe_providers.dart';
+import '../../../../core/config/app_config.dart';
 
 /// Version tree: each version shows who derived it from which parent.
 class VersionHistoryScreen extends ConsumerStatefulWidget {
@@ -190,7 +191,8 @@ class _VersionTile extends ConsumerWidget {
                               ? 'Sin valorar'
                               : '${rating.average.toStringAsFixed(1)} (${rating.count})',
                         ),
-                        InfoPill(icon: Icons.payments_outlined, label: '${Fmt.money(costPerServing)}/pers.'),
+                        if (AppConfig.showCosts)
+                          InfoPill(icon: Icons.payments_outlined, label: '${Fmt.money(costPerServing)}/pers.'),
                       ],
                     ),
                   ],

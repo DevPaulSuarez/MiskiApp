@@ -7,6 +7,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/measure_unit.dart';
 import '../../domain/entities/recipe.dart';
 import '../providers/recipe_providers.dart';
+import '../../../../core/config/app_config.dart';
 
 /// Bottom sheet to add or edit one ingredient line of a draft version.
 Future<VersionIngredient?> showIngredientLineSheet(BuildContext context, {VersionIngredient? initial}) =>
@@ -157,39 +158,45 @@ class _IngredientLineSheetState extends ConsumerState<_IngredientLineSheet> {
                 controller: _note,
                 decoration: const InputDecoration(labelText: 'Observaciones (opcional)'),
               ),
-              const SizedBox(height: 18),
-              Text('Precio de compra (opcional)', style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _price,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Precio \$'),
+              // Purchase price: hidden for now (AppConfig.showCosts). An existing
+              // price is still kept when the line is edited.
+              if (AppConfig.showCosts) ...[
+                const SizedBox(height: 18),
+                Text('Precio de compra (opcional)', style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _price,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Precio \$'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _buyQty,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Cant.'),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _buyQty,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Cant.'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<MeasureUnit>(
-                      key: ValueKey('buy-$_buyUnit'),
-                      initialValue: _buyUnit,
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Unidad'),
-                      items: [for (final u in _unit.compatibleUnits) DropdownMenuItem(value: u, child: Text(u.symbol))],
-                      onChanged: (u) => setState(() => _buyUnit = u ?? _buyUnit),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<MeasureUnit>(
+                        key: ValueKey('buy-$_buyUnit'),
+                        initialValue: _buyUnit,
+                        isExpanded: true,
+                        decoration: const InputDecoration(labelText: 'Unidad'),
+                        items: [
+                          for (final u in _unit.compatibleUnits) DropdownMenuItem(value: u, child: Text(u.symbol)),
+                        ],
+                        onChanged: (u) => setState(() => _buyUnit = u ?? _buyUnit),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 20),
               FilledButton(onPressed: _submit, child: Text(_editing ? 'Guardar cambios' : 'Agregar')),
             ],

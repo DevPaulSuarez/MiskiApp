@@ -26,6 +26,7 @@ import '../../features/social/presentation/screens/invite_screen.dart';
 import '../../features/social/presentation/screens/notifications_screen.dart';
 import '../../features/social/presentation/screens/rate_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
+import '../../core/config/app_config.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Re-run the redirect whenever the session changes (signed in, signed out, loaded).
@@ -109,13 +110,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/version/:vid/derive',
         builder: (_, s) => VersionEditorScreen(parentVersionId: s.pathParameters['vid']),
       ),
-      GoRoute(
-        path: '/version/:vid/costs',
-        builder: (_, s) => CostsScreen(
-          versionId: s.pathParameters['vid']!,
-          initialServings: int.tryParse(s.uri.queryParameters['servings'] ?? ''),
+      if (AppConfig.showCosts)
+        GoRoute(
+          path: '/version/:vid/costs',
+          builder: (_, s) => CostsScreen(
+            versionId: s.pathParameters['vid']!,
+            initialServings: int.tryParse(s.uri.queryParameters['servings'] ?? ''),
+          ),
         ),
-      ),
       GoRoute(
         path: '/version/:vid/invite',
         builder: (_, s) => InviteScreen(versionId: s.pathParameters['vid']!),
